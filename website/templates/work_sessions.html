@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Work Session Logs{% endblock %}
+
+{% block content %}
+  <div class="dashboard-container">
+    <!-- Header -->
+    <div class="dashboard-header animated">
+      <h1>Work Session Logs</h1>
+      <p>Review employee work sessions and track their time.</p>
+    </div>
+
+    <!-- Work Session Table -->
+    <div class="table-responsive animated">
+      <table class="table table-bordered table-striped table-hover text-center">
+        <thead class="thead-dark">
+          <tr>
+            <th>Employee</th>
+            <th>Sign In Time</th>
+            <th>Lunch Out Time</th>
+            <th>Lunch In Time</th>
+            <th>Sign Out Time</th>
+            <th>Total Hours Worked</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for session in work_sessions %}
+            <tr>
+              <td>{{ session.user.username }}</td>
+              <td>{{ session.sign_in_time.strftime('%Y-%m-%d %I:%M %p') if session.sign_in_time else 'N/A' }}</td>
+              <td>{{ session.lunch_out_time.strftime('%I:%M %p') if session.lunch_out_time else 'N/A' }}</td>
+              <td>{{ session.lunch_in_time.strftime('%I:%M %p') if session.lunch_in_time else 'N/A' }}</td>
+              <td>{{ session.sign_out_time.strftime('%Y-%m-%d %I:%M %p') if session.sign_out_time else 'N/A' }}</td>
+              <td>
+                {% if session.sign_in_time and session.sign_out_time %}
+                  {{ ((session.sign_out_time - session.sign_in_time).total_seconds() / 3600)|round(2) }} hrs
+                {% else %}
+                  N/A
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Navigation Links -->
+    <div class="text-center mt-4">
+      <a href="{{ url_for('views.admin_dashboard') }}" class="btn btn-custom">Back to Admin Dashboard</a>
+    </div>
+  </div>
+{% endblock %}

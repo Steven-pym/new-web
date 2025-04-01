@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+/* Reset styles */
+* {     
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Navbar Styles */
+.navbar {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.531); /* Semi-transparent background */
+    backdrop-filter: blur(5px); /* Apply blur effect */
+    -webkit-backdrop-filter: blur(5px); /* Ensure compatibility with WebKit browsers */
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between; /* Align items to the left and right */
+    align-items: center; /* Vertically center items */
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 999;
+    transition: background 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+
+/* Navbar Scroll Effect */
+.navbar.scrolled {
+    background: rgba(22, 41, 56, 0.9);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Navbar Links */
+.nav-links {
+    display: flex; /* Make it a flex container */
+    align-items: center; /* Vertically center the links */
+    width: 100%; /* Ensure it takes full width */
+}
+
+.nav-links a {
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: none; /* No default underline */
+    margin: 0 15px;
+    padding: 10px 15px;
+    border-radius: 5px;
+    position: relative; /* Ensure the pseudo-element is positioned relative to the link */
+    transition: color 0.3s ease-in-out; /* Optional: smooth color change on hover */
+}
+
+.nav-links a::after {
+    content: "";
+    display: block;
+    background: rgba(82, 214, 240, 0.742); /* Adjust transparency if needed */
+    height: 2px; /* Set the height for the underline */
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0; /* Initially 0 width */
+    transform: translateX(-50%);
+    transition: width 0.3s ease-in-out; /* Transition effect on hover */
+}
+
+.nav-links a:hover::after {
+    width: 100%; /* Underline grows to full width on hover */
+}
+
+.nav-links a:hover {
+    color: rgba(82, 213, 240, 0.8); /* Optional: change text color on hover */
+}
+
+/* Right-aligned Links */
+.right-links {
+    margin-left: auto; /* Push this container to the right */
+    display: flex; /* Make it a flex container */
+    align-items: center; /* Vertically center the links */
+}
+
+/* Preloader */
+#preloader {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: #162938;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.spinner {
+    font-size: 20px;
+    color: white;
+}
+
+

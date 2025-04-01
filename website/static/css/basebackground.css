@@ -1,0 +1,12 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color:#f8f9fa; /* Light background color */
+    background-size: cover; /* Ensure the image covers the entire body */
+    background-position: center; /* Center the background image */
+    background-attachment: fixed; /* Make the background image stay fixed during scrolling */
+    color: #333; /* Dark text color */
+    margin: 0;
+    padding: 0;
+}
+
+    

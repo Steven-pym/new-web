@@ -1,0 +1,142 @@
+body {
+    
+    background-size: cover; /* Makes the background cover the entire page */
+    background-position: center center; /* Centers the background image */
+    background-repeat: no-repeat; /* Ensures the image doesn't repeat */
+}
+/* Default light mode styles */
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    
+    color: #162938;
+    transition: background 0.3s, color 0.3s;
+  }
+  
+  /* Dark mode styles */
+  
+  
+  .wrapper {
+    position: relative;
+    width: 400px;
+    height: 440px;
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 20px;
+    backdrop-filter: blur(15px);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    transition: .5s ease;
+  }
+  
+  body.dark-mode .wrapper {
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+  }
+  
+  .form-box h2 {
+    font-size: 2rem;
+    color: black;
+    text-align: center;
+  }
+  
+  body.dark-mode .form-box h2 {
+    color: white;
+  }
+  
+  .input-box {
+    position: relative;
+    width: 100%;
+    height: 50px;
+    border-bottom: 2px solid #162938;
+    margin: 30px 0;
+  }
+  
+  body.dark-mode .input-box {
+    border-bottom: 2px solid #ffffff;
+  }
+  
+  .input-box label {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    transform: translateY(-50%);
+    font-size: 1em;
+    color: #162938;
+    font-weight: 500;
+    pointer-events: none;
+    transition: 0.3s ease-in-out;
+    background: transparent;
+    padding: 0 5px;
+  }
+  
+  body.dark-mode .input-box label {
+    color: #ffffff;
+  }
+  
+  .input-box input {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 1em;
+    color: #162938;
+    font-weight: 600;
+    padding: 0 35px 0 5px;
+  }
+  
+  body.dark-mode .input-box input {
+    color: #ffffff;
+  }
+  
+  .btn {
+    width: 100%;
+    height: 45px;
+    background: #162938;
+    border: none;
+    border-radius: 5px;
+    color: rgb(253, 253, 255);
+    font-size: 1em;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  body.dark-mode .btn {
+    background: #ffffff;
+    color: #162938;
+  }
+  
+  .btn:hover {
+    background: #0d1d2b;
+  }
+  
+  body.dark-mode .btn:hover {
+    background: #dddddd;
+  }
+  
+  /* Dark Mode Toggle Button */
+  .dark-mode-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: #162938;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  body.dark-mode .dark-mode-toggle {
+    background: white;
+    color: #162938;
+  }
+  

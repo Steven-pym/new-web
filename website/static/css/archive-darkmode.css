@@ -1,0 +1,73 @@
+/* Dark Mode Styles */
+body.dark-mode {
+    background-color: #121212;
+    color: #ffffff;
+}
+
+/* Dark Mode for Container */
+body.dark-mode .container {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+/* Dark Mode for Headings */
+body.dark-mode h1 {
+    color: #ffffff;
+}
+
+/* Dark Mode for Forms */
+body.dark-mode .form-control {
+    background-color: #333;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .form-control:focus {
+    background-color: #444;
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+body.dark-mode .form-label {
+    color: #ffffff;
+}
+
+/* Dark Mode for Buttons */
+body.dark-mode .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+body.dark-mode .btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+/* Dark Mode for Tables */
+body.dark-mode .table {
+    color: #ffffff;
+}
+
+body.dark-mode .table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+body.dark-mode .table-striped tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .table thead th {
+    background-color: #333;
+    color: #ffffff;
+}
+
+/* Dark Mode for Links */
+body.dark-mode a {
+    color: #ffffff;
+}
+
+body.dark-mode a:hover {
+    color: #0056b3;
+}

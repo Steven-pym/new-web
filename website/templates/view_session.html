@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}View Session{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="my-4">Session Details</h1>
+    
+    <table class="table table-bordered">
+        <tr>
+            <th>Session ID</th>
+            <td>{{ session.id }}</td>
+        </tr>
+        <tr>
+            <th>Employee</th>
+            <td>{{ session.user.first_name }}</td>
+        </tr>
+        <tr>
+            <th>Sign In Time</th>
+            <td>{{ session.sign_in_time }}</td>
+        </tr>
+        <tr>
+            <th>Lunch Out Time</th>
+            <td>{{ session.lunch_out_time or 'N/A' }}</td>
+        </tr>
+        <tr>
+            <th>Lunch In Time</th>
+            <td>{{ session.lunch_in_time or 'N/A' }}</td>
+        </tr>
+        <tr>
+            <th>Sign Out Time</th>
+            <td>{{ session.sign_out_time or 'N/A' }}</td>
+        </tr>
+    </table>
+    
+    <div class="mt-3">
+        <a href="{{ url_for('views.edit_session', session_id=session.id) }}" class="btn btn-primary">Edit</a>
+        <form action="{{ url_for('views.delete_session', session_id=session.id) }}" method="POST" style="display:inline;">
+            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this session?');">Delete</button>
+        </form>
+        <a href="{{ url_for('views.view_work_sessions') }}" class="btn btn-secondary">Back to Sessions</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/home-darkmode.css') }}">
+
+<div class="container0">
+    <h1 class="display-4">Welcome to the Employee Work Tracker</h1>
+    <p class="lead">Efficiently manage your work hours, track breaks, and generate reports with ease.</p>
+    {% if not user.is_authenticated %}
+        <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg">Log In</a>
+        <a href="{{ url_for('auth.sign_up') }}" class="btn btn-success btn-lg">Sign Up</a>
+    {% else %}
+        <a href="{{ url_for('views.dashboard') }}" class="btn btn-primary btn-lg">Go to Dashboard</a>
+    {% endif %}
+</div>
+
+<div class="wrapper">
+    <div class="container1">
+        <h3> Key Features</h3>
+        <input type="radio" name="slide" id="c1" checked>
+        <label for="c1" class="card">
+            <div class="row">
+                <div class="icon">1</div>
+                <div class="description">
+                    <h4>Track Work Hours</h4>
+                    <p class="card-text">Easily sign in and out to track your work hours.</p>
+                </div>
+            </div>
+        </label>
+
+        <input type="radio" name="slide" id="c2">
+        <label for="c2" class="card">
+            <div class="row">
+                <div class="icon">2</div>
+                <div class="description">
+                    <h4>Manage Breaks</h4>
+                    <p class="card-text">Track your lunch breaks and other time off.</p>
+                </div>
+            </div>
+        </label>
+
+        <input type="radio" name="slide" id="c3">
+        <label for="c3" class="card">
+            <div class="row">
+                <div class="icon">3</div>
+                <div class="description">
+                    <h4>Generate Reports</h4>
+                    <p class="card-text">Create detailed reports for your work sessions.</p>
+                </div>
+            </div>
+        </label>
+
+        <input type="radio" name="slide" id="c4">
+        <label for="c4" class="card">
+            <div class="row">
+                <div class="icon">4</div>
+                <div class="description">
+                    <h4>View Archived Reports</h4>
+                    <p class="card-text">Track and check your attendance history.</p>
+                </div>
+            </div>
+        </label>
+    </div>
+</div>
+
+<div class="bg-light py-5">
+    <div class="container02 text-center">
+        <h2>Ready to Get Started?</h2>
+        <p class="lead">Sign up now to start tracking your work hours and breaks.</p>
+        {% if not user.is_authenticated %}
+            <a href="{{ url_for('auth.sign_up') }}" class="btn btn-primary btn-lg">Sign Up</a>
+        {% else %}
+            <a href="{{ url_for('views.dashboard') }}" class="btn btn-primary btn-lg">Go to Dashboard</a>
+        {% endif %}
+    </div>
+</div>
+
+<footer class="footer container">
+    <div class="container">
+        <div class="social-icons">
+            <a href="#" class="text-white mx-2"><i class="fab fa-facebook"></i></a>
+            <a href="#" class="text-white mx-2"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="text-white mx-2"><i class="fab fa-linkedin"></i></a>
+            <a href="#" class="text-white mx-2"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="text-white mx-2"><i class="fab fa-youtube"></i></a>
+        </div>
+        <div class="footerNav">
+            <ul>
+                <li><a href="{{ url_for('views.privacy') }}" class="text-white">Privacy</a></li>
+                <li><a href="{{ url_for('views.about') }}" class="text-white">About</a></li>
+                <li><a href="{{ url_for('views.contact') }}" class="text-white">Contact</a></li>
+            </ul>
+        </div>
+        <div class="footerBottom">
+            <p>Copyright&copy; 2025 Employee Work Tracker. All rights reserved; Designe by <span class="designer">Steven Mbisa</span></p>
+        </div>
+    </div>
+</footer>
+{% endblock %}

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+    <!-- Log Out Button -->
+    <div class="text-end mt-3 me-3">
+        <a href="{{ url_for('auth.logout') }}" class="btn btn-danger">
+            <i class="fas fa-sign-out-alt"></i> Log Out
+        </a>
+    </div>
+
+    <div class="container mt-4">
+        <h1 class="my-4">Admin Dashboard</h1>
+        <p class="lead">Manage users, track work sessions, and generate reports.</p>
+
+        <!-- Admin Quick Actions -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">Manage Users</h5>
+                        <a href="{{ url_for('views.manage_users') }}" class="btn btn-primary">View Users</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">Generate Reports</h5>
+                        <a href="{{ url_for('views.reports') }}" class="btn btn-success">View Reports</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">Work Sessions</h5>
+                        <a href="{{ url_for('views.view_work_sessions') }}" class="btn btn-warning">View Sessions</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Work Sessions Table -->
+        <h2 class="my-4">Work Sessions</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Sign In</th>
+                    <th>Lunch Out</th>
+                    <th>Lunch In</th>
+                    <th>Sign Out</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for session in work_sessions %}
+                    <tr>
+                        <td>{{ session.user.first_name }}</td>
+                        <td>{{ session.sign_in_time }}</td>
+                        <td>{{ session.lunch_out_time or 'N/A' }}</td>
+                        <td>{{ session.lunch_in_time or 'N/A' }}</td>
+                        <td>{{ session.sign_out_time or 'N/A' }}</td>
+                        <td>
+                            <a href="{{ url_for('views.view_session', session_id=session.id) }}" class="btn btn-sm btn-outline-info">View</a>
+                            <a href="{{ url_for('views.edit_session', session_id=session.id) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                            <form action="{{ url_for('views.delete_session', session_id=session.id) }}" method="POST" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure?');">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

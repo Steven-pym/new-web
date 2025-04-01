@@ -1,0 +1,117 @@
+/* CHAT WIDGET STYLES - Added at bottom to prevent conflicts */
+.myapp-chat-container {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 1000;
+  }
+
+  .myapp-chat-bubble {
+    width: 60px;
+    height: 60px;
+    background-color: #007bff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+  }
+
+  .myapp-chat-bubble:hover {
+    background-color: #0069d9;
+    transform: scale(1.1);
+  }
+
+  .myapp-chat-bubble-icon {
+    color: white;
+    font-size: 24px;
+  }
+
+  .myapp-chat-box {
+    position: absolute;
+    bottom: 70px;
+    left: 0;
+    width: 300px;
+    height: 400px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    display: none;
+    flex-direction: column;
+  }
+
+  .myapp-chat-header {
+    background-color: #007bff;
+    color: white;
+    padding: 12px 15px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .myapp-chat-messages {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+  }
+
+  .myapp-chat-input-container {
+    padding: 10px;
+    border-top: 1px solid #120d0d;
+    display: flex;
+  }
+
+  .myapp-chat-input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-right: 8px;
+  }
+
+  .myapp-chat-send-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+  }
+
+  /* Dark Mode Styles */
+  .dark-mode .myapp-chat-bubble {
+    background-color: #1e88e5;
+  }
+
+  .dark-mode .myapp-chat-box {
+    background-color: #2d2d2d;
+    color: white;
+  }
+
+  .dark-mode .myapp-chat-header {
+    background-color: #1e88e5;
+  }
+
+  .dark-mode .myapp-chat-input {
+    background-color: #3d3d3d;
+    border-color: #444;
+    color: white;
+  }
+
+  .dark-mode .myapp-chat-send-btn {
+    background-color: #1565c0;
+  }
+
+  .myapp-chat-close-btn {
+    cursor: pointer; /* Changes cursor to pointer finger */
+    transition: transform 0.2s ease; /* Optional: adds smooth hover effect */
+  }
+  
+  .myapp-chat-close-btn:hover {
+    transform: scale(1.1); /* Optional: slight enlargement on hover */
+    opacity: 0.8; /* Optional: slight fade on hover */
+  }

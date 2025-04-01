@@ -1,0 +1,324 @@
+/* General reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', Arial, sans-serif;
+    background-color: #f4f4f4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh; /* Full viewport height */
+    overflow: hidden; /* Prevent scrolling */
+}
+
+/* Dark Mode Styles */
+body.dark-mode {
+    background-color: #121212;
+    color: #ffffff;
+}
+
+/* Main content container */
+.main-content {
+    width: 100%;
+    max-width: 1200px; /* Limit maximum width */
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Space between sections */
+}
+
+/* Card styling */
+.card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
+}
+
+/* Dark Mode Card Styling with Glassmorphism */
+body.dark-mode .card {
+    background: rgba(30, 30, 30, 0.7); /* Semi-transparent background */
+    backdrop-filter: blur(10px); /* Glassmorphism effect */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
+    color: #ffffff;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* User profile section */
+.user-profile {
+    margin-bottom: 20px;
+}
+
+.profile-img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 4px solid #007bff;
+    object-fit: cover;
+}
+
+.user-details {
+    text-align: left;
+    margin-top: 10px;
+}
+
+.user-details p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+/* Dark Mode User Details */
+body.dark-mode .user-details p {
+    color: #cccccc;
+}
+
+/* Upload form */
+#profile-upload-form {
+    margin-top: 20px;
+}
+
+.upload-label {
+    display: block;
+    background: #f8f9fa;
+    padding: 15px;
+    border: 2px dashed #007bff;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    text-align: center;
+    transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.upload-label:hover {
+    background: #e2e6ea;
+    border-color: #0056b3;
+}
+
+/* Dark Mode Upload Label with Glassmorphism */
+body.dark-mode .upload-label {
+    background: rgba(51, 51, 51, 0.7); /* Semi-transparent background */
+    backdrop-filter: blur(10px); /* Glassmorphism effect */
+    color: #ffffff;
+    border-color: #007bff;
+}
+
+body.dark-mode .upload-label:hover {
+    background: rgba(68, 68, 68, 0.7); /* Slightly lighter on hover */
+    border-color: #0056b3;
+}
+
+.upload-label i {
+    margin-right: 10px;
+    color: #007bff;
+}
+
+/* Hide the default file input */
+.upload-section input[type="file"] {
+    display: none;
+}
+
+#progress-bar-container {
+    width: 100%;
+    background: #ddd;
+    border-radius: 5px;
+    margin-top: 10px;
+    overflow: hidden;
+    height: 10px;
+    display: none;
+}
+
+#progress-bar {
+    height: 100%;
+    width: 0;
+    background: #007bff;
+    transition: width 0.3s ease-in-out;
+}
+
+/* Dark Mode Progress Bar */
+body.dark-mode #progress-bar-container {
+    background: #444;
+}
+
+body.dark-mode #progress-bar {
+    background: #007bff;
+}
+
+/* Quick actions */
+.wrapper-container {
+    width: 100%;
+    padding: 20px;
+}
+
+.quick-actions {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+.action-card1,
+.action-card2,
+.action-card3 {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    flex: 1;
+    max-width: 300px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.action-card1:hover,
+.action-card2:hover,
+.action-card3:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Dark Mode Quick Actions with Glassmorphism */
+body.dark-mode .action-card1,
+body.dark-mode .action-card2,
+body.dark-mode .action-card3 {
+    background: rgba(30, 30, 30, 0.7); /* Semi-transparent background */
+    backdrop-filter: blur(10px); /* Glassmorphism effect */
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
+}
+
+body.dark-mode .action-card1:hover,
+body.dark-mode .action-card2:hover,
+body.dark-mode .action-card3:hover {
+    box-shadow: 0px 8px 16px rgba(255, 255, 255, 0.1);
+}
+
+.quick-actions i {
+    font-size: 24px;
+    color: #007bff;
+    margin-bottom: 10px;
+}
+
+.quick-actions h5 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+/* Dark Mode Quick Actions Text */
+body.dark-mode .quick-actions h5 {
+    color: #ffffff;
+}
+
+.quick-actions button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.quick-actions button:hover {
+    background-color: #0056b3;
+}
+
+/* Dark Mode Buttons */
+body.dark-mode .quick-actions button {
+    background-color: #444;
+    color: #ffffff;
+}
+
+body.dark-mode .quick-actions button:hover {
+    background-color: #555;
+}
+
+/* Session table */
+.table-container {
+    width: 100%;
+    margin-top: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark Mode Table with Glassmorphism */
+body.dark-mode table {
+    background: rgba(30, 30, 30, 0.7); /* Semi-transparent background */
+    backdrop-filter: blur(10px); /* Glassmorphism effect */
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
+}
+
+thead {
+    background: #007bff;
+    color: white;
+}
+
+/* Dark Mode Table Header */
+body.dark-mode thead {
+    background: rgba(51, 51, 51, 0.7); /* Semi-transparent background */
+    backdrop-filter: blur(10px); /* Glassmorphism effect */
+}
+
+th, td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Dark Mode Table Borders */
+body.dark-mode th,
+body.dark-mode td {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .quick-actions {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .action-card1,
+    .action-card2,
+    .action-card3 {
+        max-width: 100%;
+    }
+}
+
+/* Align the link to the right */
+.align-right {
+    float: right; /* Float the link to the right */
+    margin-left: auto; /* Push the link to the right in flex containers */
+}
+
+/* Style the link */
+.settings-link {
+    text-decoration: none; /* Remove underline */
+    color: #007bff; /* Link color */
+    font-size: 1rem;
+    display: inline-block; /* Ensure the link behaves as a block element */
+    padding: 8px 0; /* Add some padding for better spacing */
+}
+
+.settings-link:hover {
+    color: #0056b3; /* Change color on hover */
+    text-decoration: underline; /* Add underline on hover */
+}
+
+/* Optional: Add spacing between the icon and text */
+.settings-link i {
+    margin-right: 2px;
+}

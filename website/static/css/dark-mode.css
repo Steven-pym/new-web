@@ -1,0 +1,327 @@
+/* Default light mode background */
+:root {
+    --background-image: url('/static/images/light-mode-bg.jpg'); /* Light mode background image */
+    --background-color: #f4f4f4; /* Light mode fallback background color */
+    --text-color: #333; /* Default text color for light mode */
+}
+
+/* Dark mode background */
+body.dark-mode {
+    --background-image: url('/static/images/dark-mode-bg.jpg'); /* Dark mode background image */
+    --background-color: #121212; /* Dark mode fallback background color */
+    --text-color: #ffffff; /* White text for dark mode */
+}
+
+/* Apply the background image and fallback color */
+body {
+    background-color: var(--background-color); /* Fallback background color */
+    background-image: var(--background-image); /* Background image */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    color: var(--text-color);
+    transition: background-image 0.5s ease, background-color 0.5s ease, color 0.5s ease; /* Smooth transition */
+}
+
+/* Navbar in Dark Mode */
+body.dark-mode .myapp-navbar {
+    background-color: #1e1e1e;
+    border-bottom: 1px solid #333;
+}
+
+body.dark-mode .myapp-navbar a {
+    color: #ffffff;
+}
+
+body.dark-mode .myapp-navbar a:hover {
+    color: #2196F3;
+}
+
+/* Cards in Dark Mode */
+body.dark-mode .myapp-card {
+    background-color: rgba(30, 30, 30, 0.8); /* Semi-transparent dark background */
+    border: 1px solid #333;
+    color: #ffffff; /* White text */
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(15px); /* Added blur effect for glassmorphism */
+}
+
+body.dark-mode .myapp-card-title {
+    color: #ffffff;
+}
+
+body.dark-mode .myapp-card-text {
+    color: #cccccc;
+}
+
+/* Buttons in Dark Mode */
+body.dark-mode .myapp-btn {
+    background-color: #444;
+    color: #ffffff;
+}
+
+body.dark-mode .myapp-btn:hover {
+    background-color: #555;
+}
+
+/* Toggle Switch Styles */
+.myapp-theme-toggle {
+    position: fixed; /* Fixed position */
+    bottom: 20px; /* Distance from the bottom */
+    right: 20px; /* Distance from the right */
+    z-index: 1000; /* Ensure it's above other content */
+}
+
+/* Hide the default checkbox */
+.myapp-toggle-input {
+    display: none;
+}
+
+/* Toggle Display Container */
+.myapp-display {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: auto; /* Remove fixed height */
+    background: transparent; /* Remove background */
+}
+
+/* Toggle Label (the switch) */
+.myapp-toggle-label {
+    width: 60px; /* Smaller width */
+    height: 30px; /* Smaller height */
+    border-radius: 999px;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.05) inset;
+    cursor: pointer;
+    position: relative;
+    background: #ccc; /* Default background for light mode */
+}
+
+/* Circle inside the toggle */
+.myapp-circle {
+    width: 26px; /* Smaller circle */
+    height: 26px; /* Smaller circle */
+    border-radius: 50%;
+    background: white;
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.05), -5px -5px 15px rgba(0, 0, 0, 0.05) inset;
+    position: absolute;
+    top: 50%;
+    left: 2px; /* Adjusted position */
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: transform 0.5s ease, background 0.5s ease;
+}
+
+/* Icons (Sun and Moon) */
+.myapp-sun,
+.myapp-moon {
+    width: 16px; /* Smaller icons */
+    position: absolute;
+    transition: opacity 0.3s ease;
+}
+
+.myapp-sun {
+    color: #ffd600;
+    opacity: 1;
+}
+
+.myapp-moon {
+    color: white;
+    opacity: 0;
+}
+
+/* Dark Mode Styles for Toggle */
+.myapp-toggle-input:checked + .myapp-display .myapp-toggle-label {
+    background: #1f1f21; /* Dark mode background */
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5) inset;
+}
+
+.myapp-toggle-input:checked + .myapp-display .myapp-toggle-label .myapp-circle {
+    left: calc(100% - 28px); /* Adjusted position for dark mode */
+    background: #2c2c2c;
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5), -5px -5px 15px rgba(0, 0, 0, 0.5) inset;
+}
+
+.myapp-toggle-input:checked + .myapp-display .myapp-toggle-label .myapp-circle .myapp-sun {
+    opacity: 0;
+}
+
+.myapp-toggle-input:checked + .myapp-display .myapp-toggle-label .myapp-circle .myapp-moon {
+    opacity: 1;
+}
+
+/* Slightly larger circle on active */
+.myapp-toggle-label:active .myapp-circle {
+    width: 30px;
+}
+
+/* Upload Section */
+.upload-section {
+    margin-top: 20px;
+}
+
+.upload-label {
+    display: block;
+    background: #f8f9fa;
+    padding: 15px;
+    border: 2px dashed #007bff;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    text-align: center;
+    transition: background 0.3s ease, border-color 0.3s ease;
+    color: #333; /* Default text color */
+}
+
+.upload-label:hover {
+    background: #e2e6ea;
+    border-color: #0056b3;
+}
+
+.upload-label i {
+    margin-right: 10px;
+    color: #007bff;
+}
+
+/* Dark Mode Styles for Upload Section */
+body.dark-mode .upload-section .upload-label {
+    background: #333; /* Dark background */
+    color: #ffffff; /* White text */
+    border-color: #007bff; /* Keep border color consistent */
+}
+
+body.dark-mode .upload-section .upload-label:hover {
+    background: #444; /* Slightly lighter background on hover */
+    border-color: #0056b3; /* Darker border on hover */
+}
+
+body.dark-mode .upload-section .upload-label i {
+    color: #007bff; /* Keep icon color consistent */
+}
+
+/* Hide the default file input */
+.upload-section input[type="file"] {
+    display: none;
+}
+
+/* Toast Notification Container */
+.notification {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    display: flex;
+    align-items: flex-end;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 20px;
+    z-index: 1000 !important;
+}
+
+/* Toast Notification */
+.toast {
+    width: 400px;
+    height: 80px;
+    background: #fff;
+    font-weight: 500;
+    margin: 15px 0;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    padding: 20px 35px 20px 25px;
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.1);
+    animation: show 0.5s ease-out;
+}
+
+/* Dark Mode Toast Notification */
+body.dark-mode .toast {
+    background: #1e1e1e; /* Dark background */
+    color: #ffffff; /* White text */
+    box-shadow: 0px 5px 10px rgba(255, 255, 255, 0.1); /* Adjusted shadow for dark mode */
+}
+
+/* Toast Types */
+.toast.success { border-left: 5px solid #28a745; }
+.toast.error { border-left: 5px solid #dc3545; }
+.toast.warning { border-left: 5px solid #ffc107; }
+.toast.info { border-left: 5px solid #17a2b8; }
+
+/* Dark Mode Toast Types */
+body.dark-mode .toast.success { border-left: 5px solid #28a745; }
+body.dark-mode .toast.error { border-left: 5px solid #dc3545; }
+body.dark-mode .toast.warning { border-left: 5px solid #ffc107; }
+body.dark-mode .toast.info { border-left: 5px solid #17a2b8; }
+
+/* Toast Icon */
+.toast-icon {
+    font-size: x-large;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+/* Dark Mode Toast Icon */
+body.dark-mode .toast-icon {
+    color: #ffffff; /* White icon */
+}
+
+/* Toast Message */
+.toast span {
+    flex-grow: 1;
+    font-size: 16px;
+}
+
+/* Dark Mode Toast Message */
+body.dark-mode .toast span {
+    color: #ffffff; /* White text */
+}
+
+/* Close Button */
+.toast .close-btn {
+    background: none;
+    border: none;
+    color: black;
+    font-size: 18px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.toast .close-btn:hover {
+    opacity: 0.7;
+}
+
+/* Dark Mode Close Button */
+body.dark-mode .toast .close-btn {
+    color: #ffffff; /* White close button */
+}
+
+body.dark-mode .toast .close-btn:hover {
+    opacity: 0.7;
+}
+
+/* Show Animation */
+@keyframes show {
+    0% {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0%);
+        opacity: 1;
+    }
+}
+
+/* Hide Animation */
+@keyframes hide {
+    0% {
+        transform: translateX(0%);
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}

@@ -1,0 +1,121 @@
+/* static/styles.css */
+
+/* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #ffffff;
+    color: #333;
+}
+
+.container {
+    padding: 20px;
+}
+
+/* Header Styles */
+h1 {
+    color: #2c3e50;
+    font-weight: bold;
+    font-size: 3rem;
+    
+}
+
+.lead {
+    color: #7f8c8d;
+}
+
+/* Card Styles */
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #34495e;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+/* Button Styles */
+.btn-primary {
+    background-color: #3498db;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+}
+
+.btn-success {
+    background-color: #2ecc71;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+}
+
+.btn-success:hover {
+    background-color: #27ae60;
+}
+
+.btn-warning {
+    background-color: #f1c40f;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+}
+
+.btn-warning:hover {
+    background-color: #f39c12;
+}
+
+.btn-danger {
+    background-color: #e74c3c;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+}
+
+.btn-danger:hover {
+    background-color: #c0392b;
+}
+
+/* Table Styles */
+.table {
+    background-color: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.table th {
+    background-color: #34495e;
+    color: #fff;
+    font-weight: bold;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(52, 73, 94, 0.05);
+}
+
+/* Log Out Button */
+.text-end .btn-danger {
+    margin: 10px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+}

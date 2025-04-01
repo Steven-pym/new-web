@@ -1,0 +1,53 @@
+/* Dark Mode Styles */
+body.dark-mode {
+    background-color: #121212;
+    color: #ffffff;
+}
+
+/* Dark Mode for Cards */
+body.dark-mode .card {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Dark Mode for Tables */
+body.dark-mode .table {
+    color: #ffffff;
+}
+
+body.dark-mode .table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+body.dark-mode .table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .table-dark {
+    background-color: #333;
+}
+
+/* Dark Mode for Dropdown */
+body.dark-mode .form-select {
+    background-color: #333;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .form-select:focus {
+    background-color: #444;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Dark Mode for Alerts */
+body.dark-mode .alert-warning {
+    background-color: #332900;
+    border-color: #665200;
+    color: #ffcc00;
+}
+
+/* Dark Mode for Spinner */
+body.dark-mode .spinner-border {
+    border-color: #ffffff transparent transparent transparent;
+}

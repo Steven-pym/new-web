@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block title %}Settings{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
+<!-- Use the latest FontAwesome -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+
+<div class="settings-card">
+    <h2><i class="fas fa-cog"></i> Settings</h2>
+    
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main form for updating profile -->
+    <form method="POST" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}  <!-- CSRF token -->
+
+        <!-- Profile Picture Section -->
+        <div class="form-group">
+            <label for="profile_picture"><i class="fas fa-user-circle"></i> Profile Picture</label>
+            
+            <div class="profile-container">
+                {% if current_user.profile_picture %}
+                    <img src="{{ url_for('static', filename='uploads/' + current_user.profile_picture) }}" width="100" alt="Profile Picture">
+                    <!-- Delete Profile Picture Button -->
+                    <button type="submit" name="delete_picture" class="btn btn-danger" aria-label="Delete Profile Picture">
+                        <i class="fas fa-trash-alt"></i> Delete Picture
+                    </button>
+                {% else %}
+                    <img src="{{ url_for('static', filename='uploads/default.png') }}" width="100" alt="Default Profile Picture">
+                {% endif %}
+            </div>
+
+            <!-- Upload New Profile Picture -->
+            <div class="upload-section">
+                <label class="upload-label">
+                    <i class="fas fa-upload"></i> Upload New Picture
+                    <input type="file" name="profile_picture" class="form-control">
+                </label>
+            </div>
+        </div>
+
+       <div class="form-group">
+            <label for="first_name">First Name</label>
+            {{ form.first_name(class="form-control") }}
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" name="email" value="{{ current_user.email }}" class="form-control">
+        </div>
+
+        <!-- Contact -->
+        <div class="form-group">
+            <label for="contact">Contact</label>
+            <input type="text" name="contact" value="{{ current_user.contact }}" class="form-control">
+        </div>
+
+        <!-- Department -->
+        <div class="form-group">
+            <label for="department">Department</label>
+            <input type="text" name="department" value="{{ current_user.department }}" class="form-control">
+        </div>
+
+        <!-- Role -->
+        <div class="form-group">
+            <label for="role">Role</label>
+            <input type="text" name="role" value="{{ current_user.role }}" class="form-control">
+        </div>
+
+        <!-- New Password -->
+        <div class="form-group">
+            <label for="password"><i class="fas fa-lock"></i> New Password</label>
+            {{ form.password(class="form-control") }}
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-group">
+            <label for="confirm_password"><i class="fas fa-check-circle"></i> Confirm Password</label>
+            {{ form.confirm_password(class="form-control") }}
+        </div>
+
+        <!-- Save Changes Button -->
+        <button type="submit" name="save_changes" class="btn btn-primary">
+            <i class="fas fa-save"></i> Save Changes
+        </button>
+    </form>
+</div>
+
+<!-- JavaScript for Dark Mode/Light Mode Toggle -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const themeSwitch = document.getElementById('theme-switch');
+        const body = document.body;
+        const themeIcon = document.querySelector('.theme-toggle i');
+        const themeText = document.querySelector('.theme-text');
+
+        // Check localStorage for theme preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            body.classList.add(savedTheme);
+            themeSwitch.checked = savedTheme === 'dark-mode';
+            updateThemeIcon(savedTheme);
+        }
+
+        // Toggle theme on switch change
+        themeSwitch.addEventListener('change', function () {
+            if (this.checked) {
+                body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark-mode');
+                updateThemeIcon('dark-mode');
+            } else {
+                body.classList.remove('dark-mode');
+                localStorage.setItem('theme', 'light-mode');
+                updateThemeIcon('light-mode');
+            }
+        });
+
+        // Function to update the icon and text
+        function updateThemeIcon(theme) {
+            if (theme === 'dark-mode') {
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+                themeText.textContent = 'Dark Mode';
+            } else {
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+                themeText.textContent = 'Light Mode';
+            }
+        }
+    });
+</script>
+{% endblock %}

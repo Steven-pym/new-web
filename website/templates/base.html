@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}Home{% endblock %}</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/basebackground.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/alerts.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/chats.css') }}">
+  <!-- Add a new CSS file for dark mode styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}">
+  <!-- Load dark mode preference before page renders -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark-mode') {
+        document.documentElement.style.backgroundColor = "#121212"; // Ensures dark background before styles load
+        document.documentElement.classList.add('dark-mode');
+      }
+    })();
+  </script>
+</head>
+
+<body>
+  <!-- Navbar -->
+<nav class="navbar">
+  <div class="nav-links">
+    {% if current_user.is_authenticated %}
+      <a id="home" href="/"><i class="fas fa-home"></i> Home</a>
+      <a id="dashboard" href="/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="{{ url_for('views.attendance') }}"><i class="fas fa-history"></i> Attendance History</a>
+      <a id="logout" href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    {% else %}
+      <div class="guest-links">
+        <a href="{{ url_for('views.about') }}" class="text-white">About</a> |
+        <a href="{{ url_for('views.contact') }}" class="text-white">Contact</a> |
+        <a href="{{ url_for('views.privacy') }}" class="text-white">Privacy Policy</a>
+      </div>
+    {% endif %}
+  </div>
+</nav>
+
+  <!-- Theme Toggle Switch (Outside Navbar) -->
+  <div class="myapp-theme-toggle">
+    <input type="checkbox" id="toggle" class="myapp-toggle-input">
+    <div class="myapp-display">
+        <label for="toggle" class="myapp-toggle-label">
+            <div class="myapp-circle">
+                <svg class="myapp-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2.25a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-1.5 0V3a.75.75 0 0 1 .75-.75ZM7.5 12a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM18.894 6.166a.75.75 0 0 0-1.06-1.06l-1.591 1.59a.75.75 0 1 0 1.06 1.061l1.591-1.59ZM21.75 12a.75.75 0 0 1-.75.75h-2.25a.75.75 0 0 1 0-1.5H21a.75.75 0 0 1 .75.75ZM17.834 18.894a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 1 0-1.061 1.06l1.59 1.591ZM12 18a.75.75 0 0 1 .75.75V21a.75.75 0 0 1-1.5 0v-2.25A.75.75 0 0 1 12 18ZM7.758 17.303a.75.75 0 0 0-1.061-1.06l-1.591 1.59a.75.75 0 0 0 1.06 1.061l1.591-1.59ZM6 12a.75.75 0 0 1-.75.75H3a.75.75 0 0 1 0-1.5h2.25A.75.75 0 0 1 6 12ZM6.697 7.757a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 0 0-1.061 1.06l1.59 1.591Z" />
+                </svg>
+                <svg class="myapp-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9.528 1.718a.75.75 0 0 1 .162.819A8.97 8.97 0 0 0 9 6a9 9 0 0 0 9 9 8.97 8.97 0 0 0 3.463-.69.75.75 0 0 1 .981.98 10.503 10.503 0 0 1-9.694 6.46c-5.799 0-10.5-4.7-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 0 1 .818.162Z" clip-rule="evenodd" />
+                </svg>
+            </div>
+        </label>
+    </div>
+</div>
+
+  <!-- Main Content -->
+  <div class="main-container">
+    <div class="container">
+      <!-- Flash Messages Container -->
+      <div class="notification" id="notification-container"></div>
+
+      <!-- Page Content -->
+      {% block content %}
+        <div class="card">
+          <img src="https://via.placeholder.com/300" alt="Placeholder Image">
+          <div class="card-body">
+            <h5 class="card-title">Welcome to Our Website</h5>
+            <p class="card-text">
+              This is an example of a custom card. You can add any content here, such as text, images, or buttons.
+            </p>
+            <a href="#" class="btn"><i class="fas fa-info-circle"></i> Learn More</a>
+          </div>
+        </div>
+      {% endblock %}
+    </div>
+  </div>
+  <!-- Chat Widget - Placed at bottom of body -->
+  {% if current_user.is_authenticated %}
+  <div class="myapp-chat-container">
+    <div class="myapp-chat-box" id="myappChatBox">
+      <div class="myapp-chat-header">
+        <span>Live Chat</span>
+        <i class="fas fa-times myapp-chat-close-btn" id="myappChatClose"></i>
+      </div>
+      <div class="myapp-chat-messages" id="myappChatMessages">
+        <!-- Messages will appear here -->
+      </div>
+      <div class="myapp-chat-input-container">
+        <input type="text" class="myapp-chat-input" id="myappChatInput" placeholder="Type your message...">
+        <button class="myapp-chat-send-btn" id="myappChatSend"><i class="fas fa-paper-plane"></i></button>
+      </div>
+    </div>
+    <div class="myapp-chat-bubble" id="myappChatBubble">
+      <i class="fas fa-comments myapp-chat-bubble-icon"></i>
+    </div>
+  </div>
+  {% endif %}
+
+
+  <!-- Include alert script BEFORE calling showToast -->
+  <script src="{{ url_for('static', filename='js/alerts.js') }}"></script>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <script>
+        document.addEventListener("DOMContentLoaded", function() {
+          const flashMessages = JSON.parse('{{ messages|tojson|safe }}');
+          flashMessages.forEach(([category, message]) => {
+            showToast(message, category);
+          });
+        });
+      </script>
+    {% endif %}
+  {% endwith %}
+
+  <!-- Preloader and Scroll Script -->
+  <script>
+    // Scroll effect for navbar
+    window.addEventListener('scroll', function() {
+      const navbar = document.querySelector('.navbar');
+      if (window.scrollY > 50) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    });
+  </script>
+
+  <!-- JavaScript for Dark Mode/Light Mode Toggle -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+    const toggle = document.getElementById('toggle');
+    const body = document.body;
+
+    // Check localStorage for theme preference
+    const savedTheme = localStorage.getItem('theme');
+
+    // Set default theme if no preference is found
+    const defaultTheme = 'light-mode'; // Change to 'dark-mode' if you want dark mode as default
+    const currentTheme = savedTheme || defaultTheme;
+
+    // Apply the saved or default theme
+    body.classList.add(currentTheme);
+    toggle.checked = currentTheme === 'dark-mode';
+
+    // Toggle theme on switch change
+    toggle.addEventListener('change', function () {
+        if (this.checked) {
+            body.classList.remove('light-mode'); // Remove light mode class
+            body.classList.add('dark-mode'); // Add dark mode class
+            localStorage.setItem('theme', 'dark-mode'); // Save preference
+        } else {
+            body.classList.remove('dark-mode'); // Remove dark mode class
+            body.classList.add('light-mode'); // Add light mode class
+            localStorage.setItem('theme', 'light-mode'); // Save preference
+        }
+    });
+});
+  </script>
+   <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Chat elements with unique prefixed IDs
+      const chatBubble = document.getElementById('myappChatBubble');
+      const chatBox = document.getElementById('myappChatBox');
+      const closeChat = document.getElementById('myappChatClose');
+      const messageInput = document.getElementById('myappChatInput');
+      const sendButton = document.getElementById('myappChatSend');
+      const chatMessages = document.getElementById('myappChatMessages');
+
+      // Toggle chat box visibility
+      if (chatBubble && chatBox) {
+        chatBubble.addEventListener('click', function() {
+          chatBox.style.display = chatBox.style.display === 'flex' ? 'none' : 'flex';
+          if (chatBox.style.display === 'flex') {
+            messageInput.focus();
+          }
+        });
+
+        closeChat.addEventListener('click', function(e) {
+          e.stopPropagation();
+          chatBox.style.display = 'none';
+        });
+      }
+
+      // Message styling function
+      function createMessageElement(message, isUser) {
+        const messageElement = document.createElement('div');
+        messageElement.textContent = message;
+        messageElement.style.marginBottom = '10px';
+        messageElement.style.padding = '8px 12px';
+        messageElement.style.borderRadius = '5px';
+        messageElement.style.maxWidth = '80%';
+        messageElement.style.wordBreak = 'break-word';
+        
+        if (isUser) {
+          messageElement.style.backgroundColor = '#f1f1f1';
+          messageElement.style.alignSelf = 'flex-end';
+          if (document.body.classList.contains('dark-mode')) {
+            messageElement.style.backgroundColor = '#444';
+            messageElement.style.color = 'white';
+          }
+        } else {
+          messageElement.style.backgroundColor = '#e1f5fe';
+          messageElement.style.alignSelf = 'flex-start';
+          if (document.body.classList.contains('dark-mode')) {
+            messageElement.style.backgroundColor = '#1a3e72';
+            messageElement.style.color = 'white';
+          }
+        }
+        
+        return messageElement;
+      }
+
+      // Send message functionality
+      function sendMessage() {
+        const message = messageInput.value.trim();
+        if (message && chatMessages) {
+          // Add user message
+          chatMessages.appendChild(createMessageElement(message, true));
+          messageInput.value = '';
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+          
+          // Simulate response (replace with actual SocketIO code)
+          setTimeout(() => {
+            if (chatMessages) {
+              chatMessages.appendChild(createMessageElement("Thanks for your message! We'll respond soon.", false));
+              chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+          }, 1000);
+        }
+      }
+
+      // Event listeners for sending messages
+      if (sendButton) {
+        sendButton.addEventListener('click', sendMessage);
+      }
+      
+      if (messageInput) {
+        messageInput.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+            sendMessage();
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>
