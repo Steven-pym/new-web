@@ -1,16 +1,14 @@
-/* Default light mode background */
-:root {
-    --background-image: url('/static/images/light-mode-bg.jpg'); /* Light mode background image */
-    --background-color: #f4f4f4; /* Light mode fallback background color */
-    --text-color: #333; /* Default text color for light mode */
+
+body {
+    background-color: var(--background-color);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    color: var(--text-color);
+    transition: background-color 0.5s ease, color 0.5s ease;
 }
 
-/* Dark mode background */
-body.dark-mode {
-    --background-image: url('/static/images/dark-mode-bg.jpg'); /* Dark mode background image */
-    --background-color: #121212; /* Dark mode fallback background color */
-    --text-color: #ffffff; /* White text for dark mode */
-}
 
 /* Apply the background image and fallback color */
 body {

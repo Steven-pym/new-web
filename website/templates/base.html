@@ -134,34 +134,44 @@
 
   <!-- JavaScript for Dark Mode/Light Mode Toggle -->
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
+   document.addEventListener('DOMContentLoaded', function () {
     const toggle = document.getElementById('toggle');
     const body = document.body;
+
+    // Background images
+    const lightModeBg = "{{ url_for('static', filename='images/light-mode-bg.jpg') }}";
+    const darkModeBg = "{{ url_for('static', filename='images/dark-mode-bg.jpg') }}";
 
     // Check localStorage for theme preference
     const savedTheme = localStorage.getItem('theme');
 
     // Set default theme if no preference is found
-    const defaultTheme = 'light-mode'; // Change to 'dark-mode' if you want dark mode as default
+    const defaultTheme = 'light-mode';
     const currentTheme = savedTheme || defaultTheme;
 
     // Apply the saved or default theme
     body.classList.add(currentTheme);
     toggle.checked = currentTheme === 'dark-mode';
 
+    // Set background image based on theme
+    body.style.backgroundImage = `url(${currentTheme === 'dark-mode' ? darkModeBg : lightModeBg})`;
+
     // Toggle theme on switch change
     toggle.addEventListener('change', function () {
         if (this.checked) {
-            body.classList.remove('light-mode'); // Remove light mode class
-            body.classList.add('dark-mode'); // Add dark mode class
-            localStorage.setItem('theme', 'dark-mode'); // Save preference
+            body.classList.remove('light-mode');
+            body.classList.add('dark-mode');
+            body.style.backgroundImage = `url(${darkModeBg})`;
+            localStorage.setItem('theme', 'dark-mode');
         } else {
-            body.classList.remove('dark-mode'); // Remove dark mode class
-            body.classList.add('light-mode'); // Add light mode class
-            localStorage.setItem('theme', 'light-mode'); // Save preference
+            body.classList.remove('dark-mode');
+            body.classList.add('light-mode');
+            body.style.backgroundImage = `url(${lightModeBg})`;
+            localStorage.setItem('theme', 'light-mode');
         }
     });
 });
+
   </script>
    <script>
     document.addEventListener('DOMContentLoaded', function() {
