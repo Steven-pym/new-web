@@ -3,14 +3,27 @@
 {% block title %}Settings{% endblock %}
 
 {% block content %}
+
 <link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
-<!-- Use the latest FontAwesome -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
 
-<div class="settings-card">
-    <h2><i class="fas fa-cog"></i> Settings</h2>
-    
-    <!-- Flash messages -->
+<div class="settings-container">
+    {% if current_user.role == 'employee' %}
+        <a href="{{ url_for('views.dashboard') }}" class="back-button">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    {% else %}
+        <a href="{{ url_for('auth.admin_dashboard') }}" class="back-button">
+            <i class="fas fa-arrow-left"></i> Back to Admin Dashboard
+        </a>
+    {% endif %}
+
+    <div class="settings-tabs">
+        <button class="tab-btn active" onclick="openTab('profile')">Profile Settings</button>
+        <button class="tab-btn" onclick="openTab('company')">Company Settings</button>
+    </div>
+
+    <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <div class="flash-messages">
@@ -21,123 +34,189 @@
         {% endif %}
     {% endwith %}
 
-    <!-- Main form for updating profile -->
-    <form method="POST" enctype="multipart/form-data">
-        {{ form.hidden_tag() }}  <!-- CSRF token -->
+    <!-- Profile Tab -->
+    <div id="profile" class="tab-content active">
+        <form method="POST" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
 
-        <!-- Profile Picture Section -->
-        <div class="form-group">
-            <label for="profile_picture"><i class="fas fa-user-circle"></i> Profile Picture</label>
-            
-            <div class="profile-container">
-                {% if current_user.profile_picture %}
-                    <img src="{{ url_for('static', filename='uploads/' + current_user.profile_picture) }}" width="100" alt="Profile Picture">
-                    <!-- Delete Profile Picture Button -->
-                    <button type="submit" name="delete_picture" class="btn btn-danger" aria-label="Delete Profile Picture">
-                        <i class="fas fa-trash-alt"></i> Delete Picture
-                    </button>
-                {% else %}
-                    <img src="{{ url_for('static', filename='uploads/default.png') }}" width="100" alt="Default Profile Picture">
-                {% endif %}
+            <!-- Profile Picture -->
+            <div class="form-group">
+                <label for="profile_picture"><i class="fas fa-user-circle"></i> Profile Picture</label>
+                <div class="profile-container">
+                    {% if current_user.profile_picture %}
+                        <img src="{{ url_for('static', filename='uploads/' + current_user.profile_picture) }}" width="100" alt="Profile Picture">
+                        <button type="submit" name="delete_picture" class="btn btn-danger">
+                            <i class="fas fa-trash-alt"></i> Delete Picture
+                        </button>
+                    {% else %}
+                        <img src="{{ url_for('static', filename='uploads/default.png') }}" width="100" alt="Default Profile Picture">
+                    {% endif %}
+                </div>
+                <div class="upload-section">
+                    <label class="upload-label">
+                        <i class="fas fa-upload"></i> Upload New Picture
+                        <input type="file" name="profile_picture" class="form-control">
+                    </label>
+                </div>
             </div>
 
-            <!-- Upload New Profile Picture -->
-            <div class="upload-section">
-                <label class="upload-label">
-                    <i class="fas fa-upload"></i> Upload New Picture
-                    <input type="file" name="profile_picture" class="form-control">
-                </label>
+            <div class="form-group">
+                <label for="first_name">First Name</label>
+                {{ form.first_name(class="form-control") }}
             </div>
-        </div>
 
-       <div class="form-group">
-            <label for="first_name">First Name</label>
-            {{ form.first_name(class="form-control") }}
-        </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                {{ form.email(class="form-control") }}
+            </div>
 
-        <!-- Email -->
-        <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" name="email" value="{{ current_user.email }}" class="form-control">
-        </div>
+            <div class="form-group">
+                <label for="contact"><i class="fas fa-phone-alt"></i> Phone</label>
+                {{ form.contact(class="form-control") }}
+            </div>
 
-        <!-- Contact -->
-        <div class="form-group">
-            <label for="contact">Contact</label>
-            <input type="text" name="contact" value="{{ current_user.contact }}" class="form-control">
-        </div>
+            <div class="form-group">
+                <label for="department">Department</label>
+                {{ form.department(class="form-control") }}
+            </div>
 
-        <!-- Department -->
-        <div class="form-group">
-            <label for="department">Department</label>
-            <input type="text" name="department" value="{{ current_user.department }}" class="form-control">
-        </div>
+            <div class="form-group">
+                <label for="role">Role</label>
+                {{ form.role(class="form-control") }}
+            </div>
 
-        <!-- Role -->
-        <div class="form-group">
-            <label for="role">Role</label>
-            <input type="text" name="role" value="{{ current_user.role }}" class="form-control">
-        </div>
+            <div class="form-group">
+                <label for="password"><i class="fas fa-lock"></i> New Password</label>
+                {{ form.password(class="form-control") }}
+            </div>
 
-        <!-- New Password -->
-        <div class="form-group">
-            <label for="password"><i class="fas fa-lock"></i> New Password</label>
-            {{ form.password(class="form-control") }}
-        </div>
+            <div class="form-group">
+                <label for="confirm_password"><i class="fas fa-check-circle"></i> Confirm Password</label>
+                {{ form.confirm_password(class="form-control") }}
+            </div>
 
-        <!-- Confirm Password -->
-        <div class="form-group">
-            <label for="confirm_password"><i class="fas fa-check-circle"></i> Confirm Password</label>
-            {{ form.confirm_password(class="form-control") }}
-        </div>
+            <button type="submit" name="save_changes" class="btn btn-primary">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
+        </form>
+    </div>
 
-        <!-- Save Changes Button -->
-        <button type="submit" name="save_changes" class="btn btn-primary">
-            <i class="fas fa-save"></i> Save Changes
-        </button>
-    </form>
-</div>
-
-<!-- JavaScript for Dark Mode/Light Mode Toggle -->
+    <!-- Company Tab -->
+    <div id="company" class="tab-content">
+        {% if current_user.role == 'admin' %}
+            <h2><i class="fas fa-building"></i> Company Settings</h2>
+            <form method="POST" enctype="multipart/form-data">
+                {{ company_form.hidden_tag() }}
+                <input type="hidden" name="update_company_settings" value="1">
+    
+                <!-- Company Logo Section -->
+                <div class="form-group">
+                    <label for="logo"><i class="fas fa-image"></i> Company Logo</label>
+                    
+                    {% if current_company %}
+                        <div class="company-logo">
+                            {% if current_company.logo %}
+                                <img src="{{ url_for('static', filename='uploads/' + current_company.logo) }}" alt="Company Logo" id="logoPreview" width="100">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='uploads/default-logo.png') }}" alt="Default Logo" id="logoPreview" width="100">
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <p>No company settings available.</p>
+                    {% endif %}
+    
+                    <!-- Logo File Upload -->
+                    <input type="file" name="logo" class="form-control" id="logoInput" accept="image/jpeg, image/png">
+                </div>
+    
+                <!-- Company Information -->
+                <div class="form-group">
+                    {{ company_form.company_name.label }}
+                    {{ company_form.company_name(class="form-control") }}
+                </div>
+    
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        {{ company_form.company_contact.label }}
+                        {{ company_form.company_contact(class="form-control") }}
+                    </div>
+                    <div class="form-group col-md-6">
+                        {{ company_form.company_address.label }}
+                        {{ company_form.company_address(class="form-control", rows="3") }}
+                    </div>
+                </div>
+    
+                <hr>
+    
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        {{ company_form.work_start_time.label }}
+                        {{ company_form.work_start_time(class="form-control", type="time") }}
+                    </div>
+                    <div class="form-group col-md-6">
+                        {{ company_form.work_end_time.label }}
+                        {{ company_form.work_end_time(class="form-control", type="time") }}
+                    </div>
+                </div>
+    
+                <div class="form-group">
+                    {{ company_form.lunch_duration.label }}
+                    {{ company_form.lunch_duration(class="form-control") }}
+                </div>
+    
+                <div class="form-group">
+                    {{ company_form.work_days.label }}
+                    <div class="work-days-checkboxes">
+                        {% for choice in company_form.work_days %}
+                            <div class="form-check form-check-inline">
+                                {{ choice(class="form-check-input") }}
+                                {{ choice.label(class="form-check-label") }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+    
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Company Settings
+                </button>
+            </form>
+        {% else %}
+            <div class="access-denied">
+                <i class="fas fa-lock fa-3x text-danger"></i>
+                <h3>Access Denied</h3>
+                <p>You do not have permission to view or edit company settings.</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    </div>    
+<!-- Tabs Script -->
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const themeSwitch = document.getElementById('theme-switch');
-        const body = document.body;
-        const themeIcon = document.querySelector('.theme-toggle i');
-        const themeText = document.querySelector('.theme-text');
+function openTab(tabName) {
+    const tabContents = document.getElementsByClassName("tab-content");
+    const tabButtons = document.getElementsByClassName("tab-btn");
 
-        // Check localStorage for theme preference
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-            body.classList.add(savedTheme);
-            themeSwitch.checked = savedTheme === 'dark-mode';
-            updateThemeIcon(savedTheme);
-        }
+    for (let i = 0; i < tabContents.length; i++) {
+        tabContents[i].classList.remove("active");
+    }
+    for (let i = 0; i < tabButtons.length; i++) {
+        tabButtons[i].classList.remove("active");
+    }
 
-        // Toggle theme on switch change
-        themeSwitch.addEventListener('change', function () {
-            if (this.checked) {
-                body.classList.add('dark-mode');
-                localStorage.setItem('theme', 'dark-mode');
-                updateThemeIcon('dark-mode');
-            } else {
-                body.classList.remove('dark-mode');
-                localStorage.setItem('theme', 'light-mode');
-                updateThemeIcon('light-mode');
-            }
-        });
-
-        // Function to update the icon and text
-        function updateThemeIcon(theme) {
-            if (theme === 'dark-mode') {
-                themeIcon.classList.remove('fa-sun');
-                themeIcon.classList.add('fa-moon');
-                themeText.textContent = 'Dark Mode';
-            } else {
-                themeIcon.classList.remove('fa-moon');
-                themeIcon.classList.add('fa-sun');
-                themeText.textContent = 'Light Mode';
-            }
+    document.getElementById(tabName).classList.add("active");
+    event.currentTarget.classList.add("active");
+}
+</script>
+<script>
+    document.getElementById("logoInput").addEventListener("change", function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // Update the src of the image with the file preview
+                document.getElementById("logoPreview").src = e.target.result;
+            };
+            reader.readAsDataURL(file);
         }
     });
 </script>

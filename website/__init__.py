@@ -6,6 +6,8 @@ from flask_login import LoginManager
 from flask_mail import Mail
 from flask_socketio import SocketIO
 from dotenv import load_dotenv
+from markupsafe import Markup
+import re
 
 # Initialize extensions
 db = SQLAlchemy()
@@ -15,7 +17,7 @@ login_manager.login_view = 'auth.login'
 DB_NAME = "database.db"
 
 # Initialize SocketIO separately
-socketio = SocketIO(async_mode='eventlet')  # Moved initialization here
+socketio = SocketIO(async_mode='eventlet')
 
 # Load environment variables
 load_dotenv()
@@ -37,6 +39,16 @@ def create_app():
     
     # Register blueprints
     register_blueprints(app)
+
+    # Register custom Jinja filter for highlight
+    def highlight(text, search):
+        if not text or not search:
+            return text
+        pattern = re.escape(search)
+        highlighted = re.sub(f'({pattern})', r'<mark>\1</mark>', text, flags=re.IGNORECASE)
+        return Markup(highlighted)
+
+    app.jinja_env.filters['highlight'] = highlight
     
     # Initialize SocketIO with app
     socketio.init_app(
@@ -44,7 +56,7 @@ def create_app():
         cors_allowed_origins="*"
     )
     
-    return app, socketio  # Return both objects
+    return app, socketio
 
 def configure_app(app):
     """Configure application settings"""

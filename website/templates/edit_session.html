@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Edit Work Session{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm rounded-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Edit Work Session</h5>
+                    <a href="{{ url_for('views.dashboard') }}" class="btn btn-sm btn-light">Back to Dashboard</a>
+                </div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Employee</label>
+                            <input type="text" class="form-control" value="{{ session.user.first_name }} {{ session.user.last_name }}" disabled>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Sign In Time</label>
+                                <input type="datetime-local" class="form-control" name="sign_in_time" value="{{ session.sign_in_time.strftime('%Y-%m-%dT%H:%M') if session.sign_in_time else '' }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Sign Out Time</label>
+                                <input type="datetime-local" class="form-control" name="sign_out_time" value="{{ session.sign_out_time.strftime('%Y-%m-%dT%H:%M') if session.sign_out_time else '' }}">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Lunch Out Time</label>
+                                <input type="time" class="form-control" name="lunch_out_time" value="{{ session.lunch_out_time.strftime('%H:%M') if session.lunch_out_time else '' }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Lunch In Time</label>
+                                <input type="time" class="form-control" name="lunch_in_time" value="{{ session.lunch_in_time.strftime('%H:%M') if session.lunch_in_time else '' }}">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" name="notes" rows="3">{{ session.notes or '' }}</textarea>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-success">Update Session</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

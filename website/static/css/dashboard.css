@@ -7,7 +7,7 @@
 
 body {
     font-family: 'Poppins', Arial, sans-serif;
-   
+    background-color: #f4f4f4;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -194,3 +194,4 @@ th, td {
         max-width: 100%;
     }
 }
+

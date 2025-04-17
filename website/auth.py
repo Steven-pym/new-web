@@ -1,14 +1,22 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify
+import os  # Import os module for environment variables
+from sqlalchemy import or_  # Import or_ for SQLAlchemy queries
+from sqlalchemy.orm import joinedload  # Import joinedload for eager loading
 import re  # Import the re module for regular expressions
 from datetime import datetime
 from . import db, mail
-from .models import User
+from .models import User, WorkSession
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 from flask_mail import Message
 from twilio.rest import Client  # Import Twilio client
+import re
+from markupsafe import Markup
+
 
 auth = Blueprint('auth', __name__)
+
+
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
@@ -133,6 +141,7 @@ If you did not make this request, simply ignore this message.
         flash('Email or phone number not found.', 'error')
 
     return render_template('forgot_password.html')
+
 # Route to reset the password
 @auth.route('/reset-password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
@@ -153,7 +162,6 @@ def reset_password(token):
 
     return render_template('reset_password.html', token=token)
 
-import os
 
 TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID', 'default_account_sid')  # Replace 'default_account_sid' with a fallback or ensure the environment variable is set
 TWILIO_PHONE_NUMBER = '+1234567890'  # Your Twilio phone number
@@ -178,3 +186,24 @@ def confirm_verification():
         return jsonify({'message': 'Phone number verified'}), 200
     
     return jsonify({'error': 'Invalid or expired code'}), 400
+
+@auth.route('/admin/dashboard')
+@login_required
+def admin_dashboard():
+    search_query = request.args.get('search', '').strip()
+
+    if search_query:
+        work_sessions = WorkSession.query.options(joinedload(WorkSession.user)).join(User).filter(
+            User.role == 'worker',
+            or_(
+                User.first_name.ilike(f"%{search_query}%"),
+                User.last_name.ilike(f"%{search_query}%"),
+                User.email.ilike(f"%{search_query}%")
+            )
+        ).order_by(WorkSession.sign_in_time.desc()).all()
+    else:
+        work_sessions = WorkSession.query.options(joinedload(WorkSession.user)).join(User).filter(
+            User.role == 'worker'
+        ).order_by(WorkSession.sign_in_time.desc()).all()
+
+    return render_template('admin_dashboard.html', work_sessions=work_sessions, search_query=search_query)

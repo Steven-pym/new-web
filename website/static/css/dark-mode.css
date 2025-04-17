@@ -1,26 +1,33 @@
+/* Default light mode background */
+/* Light mode (default) */
+:root {
+    --background-image: url('/static/images/light-mode-bg.jpg');
+    --background-color: #f4f4f4;
+    --text-color: #333;
+}
 
+/* Dark mode overrides */
+body.dark-mode {
+    --background-image: url('/static/images/dark-mode-bg.jpg');
+    --background-color: #121212;
+    --text-color: #ffffff;
+}
+
+/* Apply the background and colors */
 body {
     background-color: var(--background-color);
+    background-image: var(--background-image);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     background-attachment: fixed;
     color: var(--text-color);
-    transition: background-color 0.5s ease, color 0.5s ease;
+    transition:
+        background-color 0.5s ease,
+        background-image 0.5s ease,
+        color 0.5s ease;
 }
 
-
-/* Apply the background image and fallback color */
-body {
-    background-color: var(--background-color); /* Fallback background color */
-    background-image: var(--background-image); /* Background image */
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    color: var(--text-color);
-    transition: background-image 0.5s ease, background-color 0.5s ease, color 0.5s ease; /* Smooth transition */
-}
 
 /* Navbar in Dark Mode */
 body.dark-mode .myapp-navbar {

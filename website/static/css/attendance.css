@@ -1,102 +1,211 @@
-/* General reset */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Poppins', Arial, sans-serif;
-    background-color: #f4f4f4;
-    height: 100vh; /* Full viewport height */
-    overflow: hidden; /* Prevent scrolling */
-}
-
-.container {
-    height: 100vh; /* Full viewport height */
+/* Base Styles */
+.dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
     padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px; /* Space between sections */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Page Heading */
-.animated-heading {
-    font-size: 24px;
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.dashboard-header h1 {
+    color: #343a40;
+    margin-bottom: 10px;
+}
+
+.dashboard-header p {
+    color: #6c757d;
+    font-size: 1.1rem;
+}
+
+/* Analytics Section */
+.analytics-section {
+    margin-bottom: 30px;
+}
+
+.analytics-section h2 {
+    margin-bottom: 20px;
+    color: #495057;
+    font-size: 1.5rem;
+}
+
+.analytics-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.analytics-card {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.analytics-card:hover {
+    transform: translateY(-5px);
+}
+
+.analytics-card h3 {
+    color: #6c757d;
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+
+.analytics-card p, .analytics-card ul {
+    color: #343a40;
+    font-size: 1.2rem;
     font-weight: bold;
+}
+
+/* Charts Section */
+.charts-section {
+    margin-bottom: 30px;
+}
+
+.charts-section h2 {
+    margin-bottom: 20px;
+    color: #495057;
+    font-size: 1.5rem;
+}
+
+.chart-card {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     margin-bottom: 20px;
 }
 
-/* Dropdown */
-.form-select {
-    max-width: 200px; /* Limit dropdown width */
+/* Table Section */
+.table-section {
+    margin-bottom: 30px;
 }
 
-/* Attendance Graph Section */
-.card {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    flex: 1; /* Allow card to grow */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+.table-section h2 {
+    margin-bottom: 20px;
+    color: #495057;
+    font-size: 1.5rem;
 }
 
-#attendanceChart {
-    max-height: 300px; /* Limit chart height */
-}
-
-/* Attendance Table Section */
 .table-responsive {
-    max-height: 200px; /* Limit table height */
-    overflow-y: auto; /* Enable vertical scrolling */
+    overflow-x: auto;
 }
 
-.table {
+table {
     width: 100%;
     border-collapse: collapse;
+    background-color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-.table th, .table td {
-    padding: 10px;
-    text-align: center;
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #dee2e6;
 }
 
-.table thead {
+th {
+    background-color: #343a40;
+    color: white;
+    font-weight: 600;
+}
+
+tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Buttons */
+.btn-custom {
     background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.3s;
+}
+
+.btn-custom:hover {
+    background-color: #0056b3;
     color: white;
 }
 
 /* Loading Spinner */
 #loadingSpinner {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1000;
+    margin: 20px 0;
 }
 
-/* Responsive Adjustments */
+/* Animations */
+.animated {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Dark Mode Styles - will be activated by your base template's toggle */
+.dark-mode .dashboard-header {
+    background-color: #343a40;
+}
+
+.dark-mode .dashboard-header h1,
+.dark-mode .dashboard-header p {
+    color: #f8f9fa;
+}
+
+.dark-mode .analytics-card,
+.dark-mode .chart-card,
+.dark-mode table {
+    background-color: #495057;
+    color: #f8f9fa;
+}
+
+.dark-mode .analytics-card h3 {
+    color: #adb5bd;
+}
+
+.dark-mode .analytics-card p,
+.dark-mode .analytics-card ul,
+.dark-mode td {
+    color: #f8f9fa;
+}
+
+.dark-mode th {
+    background-color: #212529;
+}
+
+.dark-mode tr:hover {
+    background-color: #5a6268;
+}
+
+.dark-mode .charts-section h2,
+.dark-mode .table-section h2,
+.dark-mode .analytics-section h2 {
+    color: #dee2e6;
+}
+
+.dark-mode .btn-custom {
+    background-color: #0d6efd;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
-    .animated-heading {
-        font-size: 20px;
+    .analytics-cards {
+        grid-template-columns: 1fr;
     }
-
-    .form-select {
-        max-width: 100%; /* Full width on smaller screens */
-    }
-
-    .card {
-        padding: 15px;
-    }
-
-    #attendanceChart {
-        max-height: 200px; /* Smaller chart on mobile */
-    }
-
-    .table-responsive {
-        max-height: 150px; /* Smaller table on mobile */
+    
+    th, td {
+        padding: 8px 10px;
     }
 }

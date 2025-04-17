@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Edit User - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <div class="container-fluid">
+        <!-- Back Button -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="my-4">Edit User</h1>
+            <a href="{{ url_for('views.manage_users') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Users
+            </a>
+        </div>
+
+        <!-- Edit User Form -->
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">User Details</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('views.edit_user', user_id=user.id) }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row g-3">
+                        <!-- Personal Information -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="first_name" class="form-label">First Name</label>
+                                {{ form.first_name(class="form-control", value=user.first_name) }}
+                                {% for error in form.first_name.errors %}
+                                    <div class="invalid-feedback" style="display: block;">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="last_name" class="form-label">Last Name</label>
+                                {{ form.last_name(class="form-control", value=user.last_name) }}
+                                {% for error in form.last_name.errors %}
+                                    <div class="invalid-feedback" style="display: block;">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                {{ form.email(class="form-control", value=user.email) }}
+                                {% for error in form.email.errors %}
+                                    <div class="invalid-feedback" style="display: block;">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">Phone Number</label>
+                                {{ form.phone(class="form-control", value=user.phone) }}
+                                {% for error in form.phone.errors %}
+                                    <div class="invalid-feedback" style="display: block;">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Account Settings -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="role" class="form-label">Role</label>
+                                {{ form.role(class="form-select") }}
+                                {% for error in form.role.errors %}
+                                    <div class="invalid-feedback" style="display: block;">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="status" class="form-label">Account Status</label>
+                                {{ form.status(class="form-select") }}
+                                {% for error in form.status.errors %}
+                                    <div class="invalid-feedback" style="display: block;">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Department/Position -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="department" class="form-label">Department</label>
+                                {{ form.department(class="form-control", value=user.department) }}
+                                {% for error in form.department.errors %}
+                                    <div class="invalid-feedback" style="display: block;">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="position" class="form-label">Position</label>
+                                {{ form.position(class="form-control", value=user.position) }}
+                                {% for error in form.position.errors %}
+                                    <div class="invalid-feedback" style="display: block;">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Password Reset (Optional) -->
+                        <div class="col-12">
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Password Reset</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            {{ form.reset_password(class="form-check-input") }}
+                                            <label class="form-check-label" for="reset_password">
+                                                Reset Password (User will receive an email with instructions)
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Form Actions -->
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Save Changes
+                                </button>
+                                
+                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteUserModal">
+                                    <i class="fas fa-trash-alt"></i> Delete User
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete User Modal -->
+<div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteUserModalLabel">Confirm User Deletion</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to permanently delete this user account?</p>
+                <p class="fw-bold">This action cannot be undone.</p>
+                <p>User: {{ user.first_name }} {{ user.last_name }} ({{ user.email }})</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form action="{{ url_for('views.delete_user', user_id=user.id) }}" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Delete User</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

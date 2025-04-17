@@ -1,194 +1,258 @@
-{% extends "base.html" %}
-
-{% block content %}
-<!-- Bootstrap & Font Awesome -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.css">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/attendance.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/attendance-darkmode.css') }}">
-
-<div class="container">
-    <!-- Page Heading -->
-    <h1 class="animated-heading text-center mb-4">Attendance History for {{ user.first_name }}</h1>
-
-    <!-- Dropdown to select data range -->
-    <div class="mb-4">
-        <label for="attendanceRange" class="form-label">Select Attendance Range:</label>
-        <select id="attendanceRange" class="form-select" onchange="updateChart()">
-            <option value="daily">Daily</option>
-            <option value="weekly">Weekly</option>
-            <option value="monthly">Monthly</option>
-        </select>
-    </div>
-
-    <!-- Chart Canvas -->
-    <div class="card shadow-lg">
-        <h4 class="text-center">Attendance Graph</h4>
-        <canvas id="attendanceChart"></canvas>
-    </div>
-
-    <!-- Attendance Table Section -->
-    <div class="card shadow-lg mt-4">
-        <h4 class="text-center mb-3">Attendance Records</h4>
-        {% if sessions %}
-        <div class="table-responsive">
-            <table class="table table-striped table-hover">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Sign In Time</th>
-                        <th>Lunch Out Time</th>
-                        <th>Lunch In Time</th>
-                        <th>Sign Out Time</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for session in sessions %}
-                    <tr>
-                        <td>{{ session.sign_in_time }}</td>
-                        <td>{{ session.lunch_out_time or 'N/A' }}</td>
-                        <td>{{ session.lunch_in_time or 'N/A' }}</td>
-                        <td>{{ session.sign_out_time or 'N/A' }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance History for {{ user.first_name }}</title>
+    <!-- Bootstrap & Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/attendance.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/attendance-darkmode.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="dashboard-header animated">
+            <h1>Attendance History for {{ user.first_name }}</h1>
+            <p>Track your attendance patterns and work sessions</p>
         </div>
-        {% else %}
-        <p class="alert alert-warning text-center">No attendance records found.</p>
-        {% endif %}
+
+        <!-- 📊 Analytics Section -->
+        <div class="analytics-section">
+            <h2>📊 Attendance Insights</h2>
+            <div class="analytics-cards">
+                <div class="analytics-card">
+                    <h3>Total Sessions</h3>
+                    <p>{{ sessions|length }}</p>
+                </div>
+                <div class="analytics-card">
+                    <h3>Average Hours</h3>
+                    <p>
+                        {% if average_hours is not none %}
+                            {{ "%.2f"|format(average_hours) }} hrs
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="analytics-card">
+                    <h3>Most Active Day</h3>
+                    <p>{{ most_active_day or 'N/A' }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 📈 Charts Section -->
+        <div class="charts-section">
+            <h2>📈 Attendance Visualization</h2>
+            
+            <!-- Dropdown to select data range -->
+            <div class="mb-4">
+                <label for="attendanceRange" class="form-label">Select Attendance Range:</label>
+                <select id="attendanceRange" class="form-select" onchange="updateChart()">
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                </select>
+            </div>
+            
+            <div class="chart-card">
+                <canvas id="attendanceChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Attendance Table Section -->
+        <div class="table-section animated">
+            <h2>📋 Attendance Records</h2>
+            {% if sessions %}
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover text-center">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Date</th>
+                            <th>Sign In Time</th>
+                            <th>Lunch Out Time</th>
+                            <th>Lunch In Time</th>
+                            <th>Sign Out Time</th>
+                            <th>Total Hours</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for session in sessions %}
+                        <tr>
+                            <td>{{ session.sign_in_time.strftime('%Y-%m-%d') if session.sign_in_time else 'N/A' }}</td>
+                            <td>{{ session.sign_in_time.strftime('%I:%M %p') if session.sign_in_time else 'N/A' }}</td>
+                            <td>{{ session.lunch_out_time.strftime('%I:%M %p') if session.lunch_out_time else 'N/A' }}</td>
+                            <td>{{ session.lunch_in_time.strftime('%I:%M %p') if session.lunch_in_time else 'N/A' }}</td>
+                            <td>{{ session.sign_out_time.strftime('%I:%M %p') if session.sign_out_time else 'N/A' }}</td>
+                            <td>
+                                {% if session.sign_in_time and session.sign_out_time %}
+                                    {{ (((session.sign_out_time - session.sign_in_time).total_seconds() / 3600)|round(2)) }} hrs
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-warning text-center">No attendance records found.</div>
+            {% endif %}
+        </div>
+
+        <!-- Navigation Links -->
+        <div class="text-center mt-4">
+            <a href="{{ url_for('views.dashboard') }}" class="btn btn-custom">Back to Dashboard</a>
+        </div>
     </div>
-</div>
 
-<!-- Add a loading spinner for chart update -->
-<div id="loadingSpinner" class="text-center d-none">
-    <div class="spinner-border" role="status">
-        <span class="visually-hidden">Loading...</span>
+    <!-- Add a loading spinner for chart update -->
+    <div id="loadingSpinner" class="text-center d-none">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
     </div>
-</div>
 
-<script>
-    // Ensure Flask data is safely converted to JSON
-    const dailyData = JSON.parse('{{ daily_data | tojson | safe }}');
-    const weeklyData = JSON.parse('{{ weekly_data | tojson | safe }}');
-    const monthlyData = JSON.parse('{{ monthly_data | tojson | safe }}');
+    <!-- JavaScript Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        // Ensure Flask data is safely converted to JSON
+        const dailyData = JSON.parse('{{ daily_data | tojson | safe }}');
+        const weeklyData = JSON.parse('{{ weekly_data | tojson | safe }}');
+        const monthlyData = JSON.parse('{{ monthly_data | tojson | safe }}');
 
-    console.log("Daily Data:", dailyData); // Debugging: Check data in console
-    console.log("Weekly Data:", weeklyData); // Debugging: Check data in console
-    console.log("Monthly Data:", monthlyData); // Debugging: Check data in console
+        // Default chart data (Daily Data)
+        let chartData = dailyData;
 
-    // Default chart data (Daily Data)
-    let chartData = dailyData;
-
-    // Initialize the chart
-    const ctx = document.getElementById('attendanceChart').getContext('2d');
-    const attendanceChart = new Chart(ctx, {
-        type: 'line', // You can change this to bar or other types
-        data: {
-            labels: chartData.labels,
-            datasets: [{
-                label: 'Attendance Data',
-                data: chartData.data,
-                borderColor: 'rgb(75, 192, 192)',
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                tension: 0.1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false, // Allow chart to resize
-            scales: {
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Date'
+        // Initialize the chart
+        const ctx = document.getElementById('attendanceChart').getContext('2d');
+        const attendanceChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartData.labels || [],
+                datasets: [{
+                    label: 'Work Hours',
+                    data: chartData.data || [],
+                    borderColor: '#4CAF50',
+                    backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                    tension: 0.1,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
                     },
-                    grid: {
-                        color: 'rgba(255, 255, 255, 0.1)' // Light grid lines for dark mode
-                    },
-                    ticks: {
-                        color: '#ffffff' // White text for dark mode
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.y + ' hours';
+                            }
+                        }
                     }
                 },
-                y: {
-                    title: {
-                        display: true,
-                        text: 'Attendance Count'
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
                     },
-                    grid: {
-                        color: 'rgba(255, 255, 255, 0.1)' // Light grid lines for dark mode
-                    },
-                    ticks: {
-                        color: '#ffffff' // White text for dark mode
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    labels: {
-                        color: '#ffffff' // White text for legend in dark mode
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Hours Worked'
+                        },
+                        beginAtZero: true
                     }
                 }
             }
+        });
+
+        // Function to update chart based on dropdown selection
+        function updateChart() {
+            const range = document.getElementById('attendanceRange').value;
+            let newData;
+
+            if (range === 'daily') {
+                newData = dailyData;
+            } else if (range === 'weekly') {
+                newData = weeklyData;
+            } else {
+                newData = monthlyData;
+            }
+
+            // Show loading spinner
+            document.getElementById('loadingSpinner').classList.remove('d-none');
+
+            // Update chart data after a slight delay to simulate loading
+            setTimeout(() => {
+                attendanceChart.data.labels = newData.labels || [];
+                attendanceChart.data.datasets[0].data = newData.data || [];
+                attendanceChart.update();
+
+                // Hide loading spinner
+                document.getElementById('loadingSpinner').classList.add('d-none');
+            }, 500);
         }
-    });
 
-    // Function to update chart based on dropdown selection
-    function updateChart() {
-        const range = document.getElementById('attendanceRange').value;
-        let newData;
-
-        if (range === 'daily') {
-            newData = dailyData;
-        } else if (range === 'weekly') {
-            newData = weeklyData;
-        } else {
-            newData = monthlyData;
-        }
-
-        // Show loading spinner
-        document.getElementById('loadingSpinner').classList.remove('d-none');
-
-        // Update chart data after a slight delay to simulate loading
-        setTimeout(() => {
-            attendanceChart.data.labels = newData.labels;
-            attendanceChart.data.datasets[0].data = newData.data;
-            attendanceChart.update();
-
-            // Hide loading spinner
-            document.getElementById('loadingSpinner').classList.add('d-none');
-        }, 500); // Adjust delay as needed
-    }
-
-    // Dark mode toggle for the chart
-    document.addEventListener('DOMContentLoaded', function () {
-        const body = document.body;
-        const toggle = document.getElementById('toggle'); // Assuming you have a dark mode toggle switch
-
-        if (toggle) {
-            toggle.addEventListener('change', function () {
-                if (this.checked) {
-                    body.classList.add('dark-mode');
-                    attendanceChart.options.scales.x.ticks.color = '#ffffff';
-                    attendanceChart.options.scales.y.ticks.color = '#ffffff';
-                    attendanceChart.options.plugins.legend.labels.color = '#ffffff';
-                    attendanceChart.update();
+        // Dark mode toggle implementation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check for saved theme preference or use preferred color scheme
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+            const currentTheme = localStorage.getItem('theme');
+            
+            if (currentTheme === 'dark' || (!currentTheme && prefersDarkScheme.matches)) {
+                document.body.classList.add('dark-mode');
+            }
+            
+            // Toggle functionality
+            const themeToggle = document.createElement('button');
+            themeToggle.id = 'themeToggle';
+            themeToggle.className = 'btn btn-sm btn-outline-secondary position-fixed';
+            themeToggle.style.top = '10px';
+            themeToggle.style.right = '10px';
+            themeToggle.style.zIndex = '1000';
+            themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            document.body.appendChild(themeToggle);
+            
+            themeToggle.addEventListener('click', function() {
+                document.body.classList.toggle('dark-mode');
+                const theme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+                localStorage.setItem('theme', theme);
+                
+                // Update icon
+                const icon = this.querySelector('i');
+                if (theme === 'dark') {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
                 } else {
-                    body.classList.remove('dark-mode');
-                    attendanceChart.options.scales.x.ticks.color = '#000000';
-                    attendanceChart.options.scales.y.ticks.color = '#000000';
-                    attendanceChart.options.plugins.legend.labels.color = '#000000';
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                }
+                
+                // Update chart colors
+                if (attendanceChart) {
+                    if (theme === 'dark') {
+                        attendanceChart.options.scales.x.grid.color = 'rgba(255, 255, 255, 0.1)';
+                        attendanceChart.options.scales.y.grid.color = 'rgba(255, 255, 255, 0.1)';
+                    } else {
+                        attendanceChart.options.scales.x.grid.color = 'rgba(0, 0, 0, 0.1)';
+                        attendanceChart.options.scales.y.grid.color = 'rgba(0, 0, 0, 0.1)';
+                    }
                     attendanceChart.update();
                 }
             });
-        }
-    });
-</script>
-
-{% endblock %}
-
-{% block scripts %}
-<!-- Chart.js Script -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="{{ url_for('static', filename='js/attendance.js') }}"></script>
-{% endblock %}
+        });
+    </script>
+</body>
+</html>

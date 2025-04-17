@@ -6,146 +6,316 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/home-darkmode.css') }}">
 
-<div class="container0">
-    <h1 class="display-4">Welcome to the Employee Work Tracker</h1>
-    <p class="lead">Efficiently manage your work hours, track breaks, and generate reports with ease.</p>
-    {% if not user.is_authenticated %}
-        <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg">Log In</a>
-        <a href="{{ url_for('auth.sign_up') }}" class="btn btn-success btn-lg">Sign Up</a>
-    {% else %}
-        <a href="{{ url_for('views.dashboard') }}" class="btn btn-primary btn-lg">Go to Dashboard</a>
-    {% endif %}
-</div>
-
-<div class="wrapper">
-    <div class="container1">
-        <h3> Key Features</h3>
-        <input type="radio" name="slide" id="c1" checked>
-        <label for="c1" class="card-feature">
-            <div class="row">
-                <div class="icon">1</div>
-                <div class="description">
-                    <h4>Track Work Hours</h4>
-                    <p class="card-text">Easily sign in and out to track your work hours.</p>
-                </div>
-            </div>
-        </label>
-
-        <input type="radio" name="slide" id="c2">
-        <label for="c2" class="card-feature">
-            <div class="row">
-                <div class="icon">2</div>
-                <div class="description">
-                    <h4>Manage Breaks</h4>
-                    <p class="card-text">Track your lunch breaks and other time off.</p>
-                </div>
-            </div>
-        </label>
-
-        <input type="radio" name="slide" id="c3">
-        <label for="c3" class="card-feature">
-            <div class="row">
-                <div class="icon">3</div>
-                <div class="description">
-                    <h4>Generate Reports</h4>
-                    <p class="card-text">Create detailed reports for your work sessions.</p>
-                </div>
-            </div>
-        </label>
-
-        <input type="radio" name="slide" id="c4">
-        <label for="c4" class="card-feature">
-            <div class="row">
-                <div class="icon">4</div>
-                <div class="description">
-                    <h4>View Archived Reports</h4>
-                    <p class="card-text">Track and check your attendance history.</p>
-                </div>
-            </div>
-        </label>
+<!-- Hero Section with Animation -->
+<div class="hero-section">
+    <div class="container0">
+        <h1 class="display-4 animate-pop-in">Welcome to the Employee Work Tracker</h1>
+        <p class="lead animate-pop-in">Efficiently manage your work hours, track breaks, and generate reports with our comprehensive workforce management solution.</p>
+        <div class="hero-buttons animate-pop-in">
+            {% if not user.is_authenticated %}
+                <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg me-3"><i class="fas fa-sign-in-alt me-2"></i>Log In</a>
+                <a href="{{ url_for('auth.sign_up') }}" class="btn btn-success btn-lg"><i class="fas fa-user-plus me-2"></i>Sign Up</a>
+            {% else %}
+                <a href="{{ url_for('views.dashboard') }}" class="btn btn-primary btn-lg"><i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard</a>
+            {% endif %}
+        </div>
     </div>
 </div>
 
-<!-- From Uiverse.io by Smit-Prajapati -->
-<div style="display: flex; justify-content: center; margin: 3rem 0;">
-    <div class="parent">
-        <div class="card">
-            <div class="glass"></div>
-            <div class="content">
-                <span class="title">Employee Work Tracker</span>
-                <span class="text">Track hours, manage breaks, and generate reports with ease</span>
-            </div>
-            <div class="bottom">
-                <div class="social-buttons-container">
-                    <button class="social-button">
-                        <svg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg" class="svg">
-                            <path d="M 9.9980469 3 C 6.1390469 3 3 6.1419531 3 10.001953 L 3 20.001953 C 3 23.860953 6.1419531 27 10.001953 27 L 20.001953 27 C 23.860953 27 27 23.858047 27 19.998047 L 27 9.9980469 C 27 6.1390469 23.858047 3 19.998047 3 L 9.9980469 3 z M 22 7 C 22.552 7 23 7.448 23 8 C 23 8.552 22.552 9 22 9 C 21.448 9 21 8.552 21 8 C 21 7.448 21.448 7 22 7 z M 15 9 C 18.309 9 21 11.691 21 15 C 21 18.309 18.309 21 15 21 C 11.691 21 9 18.309 9 15 C 9 11.691 11.691 9 15 9 z M 15 11 A 4 4 0 0 0 11 15 A 4 4 0 0 0 15 19 A 4 4 0 0 0 19 15 A 4 4 0 0 0 15 11 z"></path>
-                        </svg>
-                    </button>
-                    <button class="social-button">
-                        <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" class="svg">
-                            <path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"></path>
-                        </svg>
-                    </button>
-                    <button class="social-button">
-                        <svg viewBox="0 0 640 512" xmlns="http://www.w3.org/2000/svg" class="svg">
-                            <path d="M524.531,69.836a1.5,1.5,0,0,0-.764-.7A485.065,485.065,0,0,0,404.081,32.03a1.816,1.816,0,0,0-1.923.91,337.461,337.461,0,0,0-14.9,30.6,447.848,447.848,0,0,0-134.426,0,309.541,309.541,0,0,0-15.135-30.6,1.89,1.89,0,0,0-1.924-.91A483.689,483.689,0,0,0,116.085,69.137a1.712,1.712,0,0,0-.788.676C39.068,183.651,18.186,294.69,28.43,404.354a2.016,2.016,0,0,0,.765,1.375A487.666,487.666,0,0,0,176.02,479.918a1.9,1.9,0,0,0,2.063-.676A348.2,348.2,0,0,0,208.12,430.4a1.86,1.86,0,0,0-1.019-2.588,321.173,321.173,0,0,1-45.868-21.853,1.885,1.885,0,0,1-.185-3.126c3.082-2.309,6.166-4.711,9.109-7.137a1.819,1.819,0,0,1,1.9-.256c96.229,43.917,200.41,43.917,295.5,0a1.812,1.812,0,0,1,1.924.233c2.944,2.426,6.027,4.851,9.132,7.16a1.884,1.884,0,0,1-.162,3.126,301.407,301.407,0,0,1-45.89,21.83,1.875,1.875,0,0,0-1,2.611,391.055,391.055,0,0,0,30.014,48.815,1.864,1.864,0,0,0,2.063.7A486.048,486.048,0,0,0,610.7,405.729a1.882,1.882,0,0,0,.765-1.352C623.729,277.594,590.933,167.465,524.531,69.836ZM222.491,337.58c-28.972,0-52.844-26.587-52.844-59.239S193.056,219.1,222.491,219.1c29.665,0,53.306,26.82,52.843,59.239C275.334,310.993,251.924,337.58,222.491,337.58Zm195.38,0c-28.971,0-52.843-26.587-52.843-59.239S388.437,219.1,417.871,219.1c29.667,0,53.307,26.82,52.844,59.239C470.715,310.993,447.538,337.58,417.871,337.58Z"></path>
-                        </svg>
-                    </button>
+<!-- Features Carousel with Additional Features -->
+<div class="wrapper">
+    <div class="container1">
+        <h3><i class="fas fa-star me-2"></i> Key Features</h3>
+        <div class="features-carousel">
+            <input type="radio" name="slide" id="c1" checked>
+            <label for="c1" class="card">
+                <div class="row">
+                    <div class="icon"><i class="fas fa-clock"></i></div>
+                    <div class="description">
+                        <h4>Time Tracking</h4>
+                        <p>Accurately record work hours with automated timestamps and manual adjustments.</p>
+                        <ul class="feature-sublist">
+                            <li><i class="fas fa-check-circle"></i> Automatic clock-in/out</li>
+                            <li><i class="fas fa-check-circle"></i> Overtime calculation</li>
+                            <li><i class="fas fa-check-circle"></i> Idle time detection</li>
+                        </ul>
+                    </div>
                 </div>
-                <div class="view-more">
-                    <button class="view-more-button">View more</button>
-                    <svg class="svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg>
+            </label>
+
+            <input type="radio" name="slide" id="c2">
+            <label for="c2" class="card">
+                <div class="row">
+                    <div class="icon"><i class="fas fa-coffee"></i></div>
+                    <div class="description">
+                        <h4>Break Management</h4>
+                        <p>Track all types of breaks with customizable rules and policies.</p>
+                        <ul class="feature-sublist">
+                            <li><i class="fas fa-check-circle"></i> Paid vs unpaid breaks</li>
+                            <li><i class="fas fa-check-circle"></i> Break duration limits</li>
+                            <li><i class="fas fa-check-circle"></i> Mandatory break reminders</li>
+                        </ul>
+                    </div>
                 </div>
+            </label>
+
+            <input type="radio" name="slide" id="c3">
+            <label for="c3" class="card">
+                <div class="row">
+                    <div class="icon"><i class="fas fa-file-alt"></i></div>
+                    <div class="description">
+                        <h4>Advanced Reporting</h4>
+                        <p>Generate comprehensive reports with visual analytics and exports.</p>
+                        <ul class="feature-sublist">
+                            <li><i class="fas fa-check-circle"></i> Custom report builder</li>
+                            <li><i class="fas fa-check-circle"></i> PDF/Excel exports</li>
+                            <li><i class="fas fa-check-circle"></i> Scheduled reports</li>
+                        </ul>
+                    </div>
+                </div>
+            </label>
+
+            <input type="radio" name="slide" id="c4">
+            <label for="c4" class="card">
+                <div class="row">
+                    <div class="icon"><i class="fas fa-database"></i></div>
+                    <div class="description">
+                        <h4>Historical Data</h4>
+                        <p>Access and analyze your complete work history.</p>
+                        <ul class="feature-sublist">
+                            <li><i class="fas fa-check-circle"></i> Unlimited data retention</li>
+                            <li><i class="fas fa-check-circle"></i> Year-over-year comparisons</li>
+                            <li><i class="fas fa-check-circle"></i> Audit trails</li>
+                        </ul>
+                    </div>
+                </div>
+            </label>
+
+            <!-- New Feature Cards -->
+            <input type="radio" name="slide" id="c5">
+            <label for="c5" class="card">
+                <div class="row">
+                    <div class="icon"><i class="fas fa-mobile-alt"></i></div>
+                    <div class="description">
+                        <h4>Mobile Access</h4>
+                        <p>Track time from anywhere with our mobile-friendly interface.</p>
+                        <ul class="feature-sublist">
+                            <li><i class="fas fa-check-circle"></i> GPS location tracking</li>
+                            <li><i class="fas fa-check-circle"></i> Offline mode</li>
+                            <li><i class="fas fa-check-circle"></i> Push notifications</li>
+                        </ul>
+                    </div>
+                </div>
+            </label>
+
+            <input type="radio" name="slide" id="c6">
+            <label for="c6" class="card">
+                <div class="row">
+                    <div class="icon"><i class="fas fa-users-cog"></i></div>
+                    <div class="description">
+                        <h4>Team Management</h4>
+                        <p>Advanced tools for managers and team leaders.</p>
+                        <ul class="feature-sublist">
+                            <li><i class="fas fa-check-circle"></i> Shift scheduling</li>
+                            <li><i class="fas fa-check-circle"></i> Approval workflows</li>
+                            <li><i class="fas fa-check-circle"></i> Labor cost analysis</li>
+                        </ul>
+                    </div>
+                </div>
+            </label>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Section -->
+<div class="stats-section py-5">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-3 col-6 stat-item">
+                <div class="stat-number" data-count="12500">0</div>
+                <div class="stat-label">Active Users</div>
             </div>
-            <div class="logo">
-                <span class="circle circle1"></span>
-                <span class="circle circle2"></span>
-                <span class="circle circle3"></span>
-                <span class="circle circle4"></span>
-                <span class="circle circle5">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 29.667 31.69" class="svg">
-                        <path id="Path_6" data-name="Path 6" d="M12.827,1.628A1.561,1.561,0,0,1,14.31,0h2.964a1.561,1.561,0,0,1,1.483,1.628v11.9a9.252,9.252,0,0,1-2.432,6.852q-2.432,2.409-6.963,2.409T2.4,20.452Q0,18.094,0,13.669V1.628A1.561,1.561,0,0,1,1.483,0h2.98A1.561,1.561,0,0,1,5.947,1.628V13.191a5.635,5.635,0,0,0,.85,3.451,3.153,3.153,0,0,0,2.632,1.094,3.032,3.032,0,0,0,2.582-1.076,5.836,5.836,0,0,0,.816-3.486Z" transform="translate(0 0)"></path>
-                        <path id="Path_7" data-name="Path 7" d="M75.207,20.857a1.561,1.561,0,0,1-1.483,1.628h-2.98a1.561,1.561,0,0,1-1.483-1.628V1.628A1.561,1.561,0,0,1,70.743,0h2.98a1.561,1.561,0,0,1,1.483,1.628Z" transform="translate(-45.91 0)"></path>
-                        <path id="Path_8" data-name="Path 8" d="M0,80.018A1.561,1.561,0,0,1,1.483,78.39h26.7a1.561,1.561,0,0,1,1.483,1.628v2.006a1.561,1.561,0,0,1-1.483,1.628H1.483A1.561,1.561,0,0,1,0,82.025Z" transform="translate(0 -51.963)"></path>
-                    </svg>
-                </span>
+            <div class="col-md-3 col-6 stat-item">
+                <div class="stat-number" data-count="980000">0</div>
+                <div class="stat-label">Hours Tracked</div>
+            </div>
+            <div class="col-md-3 col-6 stat-item">
+                <div class="stat-number" data-count="4500">0</div>
+                <div class="stat-label">Companies</div>
+            </div>
+            <div class="col-md-3 col-6 stat-item">
+                <div class="stat-number" data-count="99">0</div>
+                <div class="stat-label">% Satisfaction</div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="bg-light py-5">
+<!-- Testimonials -->
+<div class="testimonials py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5"><i class="fas fa-quote-left me-2"></i>What Our Users Say</h2>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="testimonial-card">
+                    <div class="testimonial-text">
+                        "This system reduced our payroll processing time by 70% and eliminated time tracking errors."
+                    </div>
+                    <div class="testimonial-author">
+                        <img src="https://randomuser.me/api/portraits/women/45.jpg" alt="Sarah Johnson" class="author-img">
+                        <div class="author-info">
+                            <div class="author-name">Sarah Johnson</div>
+                            <div class="author-title">HR Director, TechCorp</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="testimonial-card">
+                    <div class="testimonial-text">
+                        "The mobile app makes it so easy for our field staff to track time accurately from job sites."
+                    </div>
+                    <div class="testimonial-author">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Michael Chen" class="author-img">
+                        <div class="author-info">
+                            <div class="author-name">Michael Chen</div>
+                            <div class="author-title">Operations Manager, BuildRight</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="testimonial-card">
+                    <div class="testimonial-text">
+                        "Finally a time tracking system that doesn't make me want to pull my hair out! Simple but powerful."
+                    </div>
+                    <div class="testimonial-author">
+                        <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Emily Rodriguez" class="author-img">
+                        <div class="author-info">
+                            <div class="author-name">Emily Rodriguez</div>
+                            <div class="author-title">Freelance Designer</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CTA Section -->
+<div class="cta-section py-5 bg-primary text-white">
     <div class="container02 text-center">
-        <h2>Ready to Get Started?</h2>
-        <p class="lead">Sign up now to start tracking your work hours and breaks.</p>
+        <h2>Ready to Transform Your Workforce Management?</h2>
+        <p class="lead">Join thousands of companies who trust our platform for accurate time tracking and workforce analytics.</p>
         {% if not user.is_authenticated %}
-            <a href="{{ url_for('auth.sign_up') }}" class="btn btn-primary btn-lg">Sign Up</a>
+            <a href="{{ url_for('auth.sign_up') }}" class="btn btn-light btn-lg me-3"><i class="fas fa-rocket me-2"></i>Start Free Trial</a>
         {% else %}
-            <a href="{{ url_for('views.dashboard') }}" class="btn btn-primary btn-lg">Go to Dashboard</a>
+            <a href="{{ url_for('views.dashboard') }}" class="btn btn-light btn-lg"><i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard</a>
         {% endif %}
     </div>
 </div>
 
-<footer class="footer container">
+<!-- Footer -->
+<footer class="footer">
     <div class="container">
-        <div class="social-icons">
-            <a href="#" class="text-white mx-2"><i class="fab fa-facebook"></i></a>
-            <a href="#" class="text-white mx-2"><i class="fab fa-twitter"></i></a>
-            <a href="#" class="text-white mx-2"><i class="fab fa-linkedin"></i></a>
-            <a href="#" class="text-white mx-2"><i class="fab fa-instagram"></i></a>
-            <a href="#" class="text-white mx-2"><i class="fab fa-youtube"></i></a>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <h5>Employee Work Tracker</h5>
+                <p>The most reliable time tracking solution for businesses of all sizes.</p>
+                <div class="developer-info mt-4">
+                    <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="Steven Mbisa" class="developer-img">
+                    <div class="developer-details">
+                        <div class="developer-name">Steven Mbisa</div>
+                        <div class="developer-title">Lead Developer</div>
+                    </div>
+                </div>
+            </div>
+           
+            <div class="col-md-2 col-6 mb-4">
+                <h5>Company</h5>
+                <ul class="footer-links">
+                    <li><a href="{{ url_for('views.about') }}">About</a></li>
+                    
+                    
+                </ul>
+            </div>
+            <div class="col-md-4 mb-4">
+                <h5>Connect With Us</h5>
+                <div class="social-icons">
+                    <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
+                </div>
+                <div class="newsletter mt-3">
+                    <p>Subscribe to our newsletter</p>
+                    <form class="newsletter-form">
+                        <input type="email" placeholder="Your email" required>
+                        <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                    </form>
+                </div>
+            </div>
         </div>
-        <div class="footerNav">
-            <ul>
-                <li><a href="{{ url_for('views.privacy') }}" class="text-white">Privacy</a></li>
-                <li><a href="{{ url_for('views.about') }}" class="text-white">About</a></li>
-                <li><a href="{{ url_for('views.contact') }}" class="text-white">Contact</a></li>
-            </ul>
-        </div>
-        <div class="footerBottom">
-            <p>Copyright&copy; 2025 Employee Work Tracker. All rights reserved; Designed by <span class="designer">Steven Mbisa</span></p>
+        <div class="footer-bottom">
+            <div class="row">
+                <div class="col-md-6">
+                    <p>Copyright&copy; 2025 Employee Work Tracker. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <ul class="legal-links">
+                        <li><a href="{{ url_for('views.privacy') }}">Privacy Policy</a></li>
+                        <li><a href="{{ url_for('views.terms') }}">Terms of Service</a></li>
+                        <li><a href="{{ url_for('views.contact') }}">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 </footer>
+
+<script>
+    // Animate stats counting
+    function animateStats() {
+        const statItems = document.querySelectorAll('.stat-item');
+        statItems.forEach(item => {
+            const numberElement = item.querySelector('.stat-number');
+            const target = parseInt(numberElement.getAttribute('data-count'));
+            const duration = 2000; // Animation duration in ms
+            const step = target / (duration / 16); // 60fps
+            
+            let current = 0;
+            const counter = setInterval(() => {
+                current += step;
+                if (current >= target) {
+                    clearInterval(counter);
+                    current = target;
+                }
+                numberElement.textContent = Math.floor(current).toLocaleString();
+            }, 16);
+        });
+    }
+    
+    // Run animation when stats section is in view
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateStats();
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    observer.observe(document.querySelector('.stats-section'));
+    
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+</script>
 {% endblock %}

@@ -1,6 +1,6 @@
 from website import create_app
 
-app, socketio = create_app()  # Now properly unpacks both objects
+app, socketio = create_app()  
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)  # Add debug=True for development
+    socketio.run(app, debug=True) 

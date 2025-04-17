@@ -24,23 +24,7 @@
 </head>
 
 <body>
-  <!-- Navbar -->
-<nav class="navbar">
-  <div class="nav-links">
-    {% if current_user.is_authenticated %}
-      <a id="home" href="/"><i class="fas fa-home"></i> Home</a>
-      <a id="dashboard" href="/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-      <a href="{{ url_for('views.attendance') }}"><i class="fas fa-history"></i> Attendance History</a>
-      <a id="logout" href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
-    {% else %}
-      <div class="guest-links">
-        <a href="{{ url_for('views.about') }}" class="text-white">About</a> |
-        <a href="{{ url_for('views.contact') }}" class="text-white">Contact</a> |
-        <a href="{{ url_for('views.privacy') }}" class="text-white">Privacy Policy</a>
-      </div>
-    {% endif %}
-  </div>
-</nav>
+ 
 
   <!-- Theme Toggle Switch (Outside Navbar) -->
   <div class="myapp-theme-toggle">

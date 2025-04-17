@@ -1,51 +1,135 @@
-{% extends "base.html" %}
-{% block title %}Work Session Logs{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Session Logs</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/work-session.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="dashboard-header animated">
+            <h1>Work Session Logs</h1>
+            <p>Review employee work sessions and track their time.</p>
+        </div>
 
-{% block content %}
-  <div class="dashboard-container">
-    <!-- Header -->
-    <div class="dashboard-header animated">
-      <h1>Work Session Logs</h1>
-      <p>Review employee work sessions and track their time.</p>
+        <!-- 📊 Analytics Section -->
+        <div class="analytics-section">
+            <h2>📊 Weekly Insights</h2>
+            <div class="analytics-cards">
+                <div class="analytics-card">
+                    <h3>Total Work Hours</h3>
+                    <p>{{ total_hours }} hrs</p>
+                </div>
+                <div class="analytics-card">
+                    <h3>Late Logins</h3>
+                    <p>{{ late_logins }}</p>
+                </div>
+                <div class="analytics-card">
+                    <h3>Top 5 Active Employees</h3>
+                    <ul>
+                        {% for user in most_active %}
+                            <li>{{ user.first_name }} ({{ user.session_count }} sessions)</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 📈 Charts Section -->
+        <div class="charts-section">
+            <h2>📊 Data Visualization</h2>
+            <canvas id="dailyHoursChart"></canvas>
+            <canvas id="topEmployeesChart"></canvas>
+        </div>
+
+        <!-- Work Session Table -->
+        <div class="table-responsive animated">
+            <table class="table table-bordered table-striped table-hover text-center">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Employee</th>
+                        <th>Sign In Time</th>
+                        <th>Lunch Out Time</th>
+                        <th>Lunch In Time</th>
+                        <th>Sign Out Time</th>
+                        <th>Total Hours Worked</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for session in work_sessions %}
+                        <tr>
+                            <td>{{ session.user.username }}</td>
+                            <td>{{ session.sign_in_time.strftime('%Y-%m-%d %I:%M %p') if session.sign_in_time else 'N/A' }}</td>
+                            <td>{{ session.lunch_out_time.strftime('%I:%M %p') if session.lunch_out_time else 'N/A' }}</td>
+                            <td>{{ session.lunch_in_time.strftime('%I:%M %p') if session.lunch_in_time else 'N/A' }}</td>
+                            <td>{{ session.sign_out_time.strftime('%Y-%m-%d %I:%M %p') if session.sign_out_time else 'N/A' }}</td>
+                            <td>
+                                {% if session.sign_in_time and session.sign_out_time %}
+                                    {{ ((session.sign_out_time - session.sign_in_time).total_seconds() / 3600)|round(2) }} hrs
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Navigation Links -->
+        <div class="text-center mt-4">
+            <a href="{{ url_for('views.admin_dashboard') }}" class="btn btn-custom">Back to Admin Dashboard</a>
+        </div>
     </div>
 
-    <!-- Work Session Table -->
-    <div class="table-responsive animated">
-      <table class="table table-bordered table-striped table-hover text-center">
-        <thead class="thead-dark">
-          <tr>
-            <th>Employee</th>
-            <th>Sign In Time</th>
-            <th>Lunch Out Time</th>
-            <th>Lunch In Time</th>
-            <th>Sign Out Time</th>
-            <th>Total Hours Worked</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for session in work_sessions %}
-            <tr>
-              <td>{{ session.user.username }}</td>
-              <td>{{ session.sign_in_time.strftime('%Y-%m-%d %I:%M %p') if session.sign_in_time else 'N/A' }}</td>
-              <td>{{ session.lunch_out_time.strftime('%I:%M %p') if session.lunch_out_time else 'N/A' }}</td>
-              <td>{{ session.lunch_in_time.strftime('%I:%M %p') if session.lunch_in_time else 'N/A' }}</td>
-              <td>{{ session.sign_out_time.strftime('%Y-%m-%d %I:%M %p') if session.sign_out_time else 'N/A' }}</td>
-              <td>
-                {% if session.sign_in_time and session.sign_out_time %}
-                  {{ ((session.sign_out_time - session.sign_in_time).total_seconds() / 3600)|round(2) }} hrs
-                {% else %}
-                  N/A
-                {% endif %}
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+    <script>
+        // Data for charts passed from Flask
+        const dailyHoursLabels = JSON.parse('{{ daily_hours_labels | tojson | safe }}');
+        const dailyHoursData = JSON.parse('{{ daily_hours_data | tojson | safe }}');
+        const topEmployeesLabels = JSON.parse('{{ top_employees_labels | tojson | safe }}');
+        const topEmployeesData = JSON.parse('{{ top_employees_data | tojson | safe }}');
 
-    <!-- Navigation Links -->
-    <div class="text-center mt-4">
-      <a href="{{ url_for('views.admin_dashboard') }}" class="btn btn-custom">Back to Admin Dashboard</a>
-    </div>
-  </div>
-{% endblock %}
+        // Daily Work Hours Chart
+        new Chart(document.getElementById('dailyHoursChart'), {
+            type: 'bar',
+            data: {
+                labels: dailyHoursLabels,
+                datasets: [{
+                    label: 'Work Hours',
+                    data: dailyHoursData,
+                    backgroundColor: '#4CAF50'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Top 5 Active Employees Chart
+        new Chart(document.getElementById('topEmployeesChart'), {
+            type: 'bar',
+            data: {
+                labels: topEmployeesLabels,
+                datasets: [{
+                    label: 'Sessions',
+                    data: topEmployeesData,
+                    backgroundColor: '#2196F3'
+                }]
+            },
+            options: {
+                responsive: true,
+                indexAxis: 'y',
+                scales: {
+                    x: { beginAtZero: true }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
