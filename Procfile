@@ -1,1 +1,1 @@
-gunicorn main:create_app()
+gunicorn "main:create_app()"
