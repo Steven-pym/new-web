@@ -1,3 +1,7 @@
+import eventlet
+eventlet.monkey_patch()
+
+# 2. Now regular imports
 import os
 from os import path, getenv
 from flask import Flask, current_app
@@ -9,54 +13,16 @@ from dotenv import load_dotenv
 from markupsafe import Markup
 import re
 
-# Initialize extensions
+# Initialize extensions (INCLUDING SocketIO)
 db = SQLAlchemy()
 mail = Mail()
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
+socketio = SocketIO()  # Initialize SocketIO
 DB_NAME = "database.db"
-
-# Initialize SocketIO separately
-socketio = SocketIO(async_mode='eventlet')
 
 # Load environment variables
 load_dotenv()
-
-def create_app():
-    app = Flask(__name__)
-    
-    # Configuration
-    configure_app(app)
-    
-    # Initialize extensions
-    initialize_extensions(app)
-    
-    # Setup database
-    setup_database(app)
-    
-    # Configure upload folder
-    configure_upload_folder(app)
-    
-    # Register blueprints
-    register_blueprints(app)
-
-    # Register custom Jinja filter for highlight
-    def highlight(text, search):
-        if not text or not search:
-            return text
-        pattern = re.escape(search)
-        highlighted = re.sub(f'({pattern})', r'<mark>\1</mark>', text, flags=re.IGNORECASE)
-        return Markup(highlighted)
-
-    app.jinja_env.filters['highlight'] = highlight
-    
-    # Initialize SocketIO with app
-    socketio.init_app(
-        app,
-        cors_allowed_origins="*"
-    )
-    
-    return app, socketio
 
 def configure_app(app):
     """Configure application settings"""
@@ -70,9 +36,47 @@ def configure_app(app):
         MAIL_USERNAME=getenv('MAIL_USERNAME'),
         MAIL_PASSWORD=getenv('MAIL_PASSWORD'),
         SOCKETIO_MESSAGE_QUEUE=getenv('REDIS_URL', None),
-        UPLOAD_FOLDER=os.path.join(app.root_path, 'static', 'uploads'),
-        ALLOWED_EXTENSIONS={'png', 'jpg', 'jpeg', 'gif'}
+            UPLOAD_FOLDER=os.path.join(app.root_path, 'static', 'uploads'),
+                ALLOWED_EXTENSIONS={'png', 'jpg', 'jpeg', 'gif'}
+            )
+
+def create_app():
+    app = Flask(__name__)
+    
+    # Configuration
+    configure_app(app)
+    
+    # Initialize extensions
+    initialize_extensions(app)
+    
+    # Initialize SocketIO HERE
+    socketio = SocketIO(
+        app,
+        async_mode='eventlet',
+        cors_allowed_origins="*",
+        message_queue=getenv('REDIS_URL')
     )
+    
+    # Setup database
+    setup_database(app)
+    
+    # Configure upload folder
+    configure_upload_folder(app)
+    
+    # Register blueprints
+    register_blueprints(app)
+
+    # Custom Jinja filter
+    def highlight(text, search):
+        if not text or not search:
+            return text
+        pattern = re.escape(search)
+        highlighted = re.sub(f'({pattern})', r'<mark>\1</mark>', text, flags=re.IGNORECASE)
+        return Markup(highlighted)
+
+    app.jinja_env.filters['highlight'] = highlight
+    
+    return app, socketio
 
 def initialize_extensions(app):
     """Initialize Flask extensions"""
@@ -85,7 +89,7 @@ def initialize_extensions(app):
     def load_user(user_id):
         from .models import User  # Import inside to avoid circular imports
         return User.query.get(int(user_id))
-    
+    global socketio
     socketio.init_app(
         app,
         cors_allowed_origins="*",
