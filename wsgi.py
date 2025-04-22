@@ -1,9 +1,8 @@
-# This must be the very first import
 import eventlet
-eventlet.monkey_patch()
+eventlet.monkey_patch()  # This must be the very first import
 
 from main import application  # Import the Flask app
-from main import socketio    # Import SocketIO instance
+from main import socketio      # Import SocketIO instance
 
 if __name__ == '__main__':
     socketio.run(application)

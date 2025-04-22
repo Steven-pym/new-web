@@ -12,7 +12,7 @@ from flask_socketio import SocketIO
 from dotenv import load_dotenv
 from markupsafe import Markup
 import re
-import psycopg2  # Add this import
+import psycopg2  # PostgreSQL connection
 from psycopg2 import pool  # For connection pooling
 
 # Initialize extensions
@@ -21,7 +21,6 @@ mail = Mail()
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
 socketio = SocketIO()
-# Remove DB_NAME = "database.db" as we'll use PostgreSQL connection string
 
 # Load environment variables
 load_dotenv()
@@ -39,7 +38,7 @@ def configure_app(app):
             'pool_recycle': 300,
         },
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
-        # SSL configuration for PostgreSQL
+        # SSL configuration for PostgreSQL (remove if not needed)
         SQLALCHEMY_ENGINE_OPTIONS_SSL={
             'sslmode': 'require',
             'sslrootcert': 'path/to/root-cert.pem',
@@ -57,23 +56,19 @@ def configure_app(app):
     )
 
 def create_app():
+    """Create and configure the Flask application"""
     app = Flask(__name__)
-    
+
     # Configuration
     configure_app(app)
     
     # Initialize extensions
     initialize_extensions(app)
     
-    # Initialize SocketIO HERE
-    socketio = SocketIO(
-        app,
-        async_mode='eventlet',
-        cors_allowed_origins="*",
-        message_queue=getenv('REDIS_URL')
-    )
+    # Initialize SocketIO with the app
+    socketio.init_app(app)
     
-    # Setup database
+    # Setup the database
     setup_database(app)
     
     # Configure upload folder
@@ -82,7 +77,7 @@ def create_app():
     # Register blueprints
     register_blueprints(app)
 
-    # Custom Jinja filter
+    # Custom Jinja filter for highlighting text
     def highlight(text, search):
         if not text or not search:
             return text
@@ -92,37 +87,32 @@ def create_app():
 
     app.jinja_env.filters['highlight'] = highlight
     
-    return app, socketio
+    return app, socketio  # Return both objects
+
 
 def initialize_extensions(app):
     """Initialize Flask extensions"""
     db.init_app(app)
     mail.init_app(app)
     login_manager.init_app(app)
-    
-    # Add user loader
+    socketio.init_app(app)  # Initialize SocketIO here
+
+    # Add user loader for login
     @login_manager.user_loader
     def load_user(user_id):
         from .models import User  # Import inside to avoid circular imports
         return User.query.get(int(user_id))
-    global socketio
-    socketio.init_app(
-        app,
-        cors_allowed_origins="*",
-        async_mode='eventlet'
-    )
-
+    
 def setup_database(app):
-    """Initialize database"""
-    from .models import User, WorkSession, Message  
+    """Initialize the database and create tables"""
+    from .models import User, WorkSession, Message  # Import models
     
     with app.app_context():
-        # Removed DB_NAME check as it's unnecessary for PostgreSQL
-        db.create_all()
+        db.create_all()  # Creates all tables defined in the models
         print("✅ Initialized Database!")
 
 def configure_upload_folder(app):
-    """Ensure upload folder exists"""
+    """Ensure the upload folder exists"""
     upload_folder = app.config['UPLOAD_FOLDER']
     if not os.path.exists(upload_folder):
         os.makedirs(upload_folder)
@@ -137,6 +127,6 @@ def register_blueprints(app):
     app.register_blueprint(auth, url_prefix='/')
 
 def allowed_file(filename):
-    """Check if file extension is allowed"""
+    """Check if the file extension is allowed for upload"""
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
