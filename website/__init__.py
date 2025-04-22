@@ -1,7 +1,7 @@
 import eventlet
 eventlet.monkey_patch()
 
-# 2. Now regular imports
+# Regular imports
 import os
 from os import path, getenv
 from flask import Flask, current_app
@@ -12,33 +12,49 @@ from flask_socketio import SocketIO
 from dotenv import load_dotenv
 from markupsafe import Markup
 import re
+import psycopg2  # Add this import
+from psycopg2 import pool  # For connection pooling
 
-# Initialize extensions (INCLUDING SocketIO)
+# Initialize extensions
 db = SQLAlchemy()
 mail = Mail()
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
-socketio = SocketIO()  # Initialize SocketIO
-DB_NAME = "database.db"
+socketio = SocketIO()
+# Remove DB_NAME = "database.db" as we'll use PostgreSQL connection string
 
 # Load environment variables
 load_dotenv()
 
 def configure_app(app):
-    """Configure application settings"""
+    """Configure application settings with PostgreSQL"""
     app.config.update(
         SECRET_KEY=getenv('FLASK_SECRET_KEY', 'dev-secret-key'),
-        SQLALCHEMY_DATABASE_URI=f'sqlite:///{DB_NAME}',
+        # PostgreSQL configuration with connection pooling
+        SQLALCHEMY_DATABASE_URI=getenv('DATABASE_URL', 'postgresql://user:password@localhost/dbname'),
+        SQLALCHEMY_ENGINE_OPTIONS={
+            'pool_size': 10,
+            'max_overflow': 20,
+            'pool_pre_ping': True,
+            'pool_recycle': 300,
+        },
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
+        # SSL configuration for PostgreSQL
+        SQLALCHEMY_ENGINE_OPTIONS_SSL={
+            'sslmode': 'require',
+            'sslrootcert': 'path/to/root-cert.pem',
+            'sslcert': 'path/to/client-cert.pem',
+            'sslkey': 'path/to/client-key.pem'
+        },
         MAIL_SERVER='smtp.gmail.com',
         MAIL_PORT=587,
         MAIL_USE_TLS=True,
         MAIL_USERNAME=getenv('MAIL_USERNAME'),
         MAIL_PASSWORD=getenv('MAIL_PASSWORD'),
         SOCKETIO_MESSAGE_QUEUE=getenv('REDIS_URL', None),
-            UPLOAD_FOLDER=os.path.join(app.root_path, 'static', 'uploads'),
-                ALLOWED_EXTENSIONS={'png', 'jpg', 'jpeg', 'gif'}
-            )
+        UPLOAD_FOLDER=os.path.join(app.root_path, 'static', 'uploads'),
+        ALLOWED_EXTENSIONS={'png', 'jpg', 'jpeg', 'gif'}
+    )
 
 def create_app():
     app = Flask(__name__)
@@ -98,12 +114,12 @@ def initialize_extensions(app):
 
 def setup_database(app):
     """Initialize database"""
-    from .models import User, WorkSession, Message  # Avoid circular imports
+    from .models import User, WorkSession, Message  
     
     with app.app_context():
-        if not path.exists(os.path.join('website', DB_NAME)):
-            db.create_all()
-            print("✅ Created Database!")
+        # Removed DB_NAME check as it's unnecessary for PostgreSQL
+        db.create_all()
+        print("✅ Initialized Database!")
 
 def configure_upload_folder(app):
     """Ensure upload folder exists"""

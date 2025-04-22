@@ -68,3 +68,4 @@ yarl==1.18.3
 eventlet>=0.33.0
 eventlet>=0.33.0
 Flask-SocketIO>=5.3.2
+psycopg2-binary
