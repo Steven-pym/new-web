@@ -5,6 +5,9 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 import secrets
 from . import db 
+from flask_wtf import FlaskForm
+from wtforms import StringField, TextAreaField, SubmitField
+from wtforms.validators import DataRequired, Length, Email
 
 
 class User(db.Model, UserMixin):
@@ -145,20 +148,18 @@ class AuditLog(db.Model):
     
 class Company(db.Model):
     __tablename__ = 'company'
-
+    
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    registration_number = db.Column(db.String(100), nullable=False)
-    contact_email = db.Column(db.String(120), nullable=False)
-    phone = db.Column(db.String(15), nullable=True)
-    address = db.Column(db.Text, nullable=True)
+    registration_number = db.Column(db.String(50), nullable=False, unique=True)
+    contact_email = db.Column(db.String(100), nullable=False)
+    phone = db.Column(db.String(20))
+    address = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    logo = db.Column(db.String(255), nullable=True, default="default.png")
-    users = db.relationship('User', backref='company', lazy=True)
-    settings = db.relationship('CompanySettings', backref='company', uselist=False)
+    logo = db.Column(db.String(100), nullable=True)
 
-    def __repr__(self):
-        return f'<Company {self.name}>'
+    # Relationship
+    employees = db.relationship('User', backref='company', lazy=True)
 
     
 class CompanySettings(db.Model):
@@ -173,4 +174,14 @@ class CompanySettings(db.Model):
 
     def __repr__(self):
         return f'<CompanySettings for Company ID {self.company_id}>'
+    
+class CompanyEditForm(FlaskForm):
+    name = StringField('Company Name', validators=[DataRequired(), Length(max=100)])
+    registration_number = StringField('Registration Number', 
+                                   validators=[DataRequired(), Length(max=50)])
+    contact_email = StringField('Contact Email', 
+                              validators=[DataRequired(), Email(), Length(max=100)])
+    phone = StringField('Phone Number', validators=[Length(max=20)])
+    address = TextAreaField('Address', validators=[Length(max=500)])
+    submit = SubmitField('Update Company')
     

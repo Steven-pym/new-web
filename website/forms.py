@@ -1,7 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, FileField, SelectMultipleField, IntegerField, TextAreaField, EmailField
-from wtforms.validators import EqualTo, DataRequired, Email, NumberRange, Optional, Length
+from wtforms import StringField, PasswordField, SubmitField, FileField, SelectMultipleField, IntegerField, TextAreaField, EmailField, BooleanField
+from wtforms.validators import EqualTo, DataRequired, Email, NumberRange, Optional, Length, ValidationError
 from flask_wtf.file import FileAllowed, FileSize
+import re
 
 class EditProfileForm(FlaskForm):
     first_name = StringField('First Name', validators=[DataRequired()])
@@ -58,11 +59,13 @@ class CompanySettingsForm(FlaskForm):
     submit = SubmitField('Save Company Settings')
 
 class CompanyRegistrationForm(FlaskForm):
-    name = StringField('Company Name', validators=[DataRequired()])
-    registration_number = StringField('Registration Number', validators=[DataRequired()])
-    contact_email = EmailField('Contact Email', validators=[DataRequired(), Email()])
-    phone = StringField('Phone Number')
-    address = TextAreaField('Address')
-    submit = SubmitField('Register Company')
-
+    name = StringField('Company Name', validators=[DataRequired(), Length(max=100)])
+    registration_number = StringField('Registration Number', 
+                                   validators=[DataRequired(), Length(max=50)])
+    contact_email = StringField('Contact Email', 
+                              validators=[DataRequired(), Email(), Length(max=100)])
+    phone = StringField('Phone Number', validators=[Length(max=20)])
+    address = TextAreaField('Address', validators=[Length(max=500)])
+    terms = BooleanField('I agree to the terms and conditions', 
+                       validators=[DataRequired(message="You must accept the terms")])
     

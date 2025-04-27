@@ -1,14 +1,692 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-hover: #3a56d4;
+            --bg: #f8f9fa;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --text: #212529;
+            --text-light: #6c757d;
+            --border: rgba(0, 0, 0, 0.1);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --success: #4bb543;
+            --danger: #ff3333;
+            --warning: #ffcc00;
+            --info: #17a2b8;
+        }
 
-{% block title %}Settings{% endblock %}
+        .dark-mode {
+            --primary: #4895ef;
+            --primary-hover: #3a7bc8;
+            --bg: #121212;
+            --card-bg: rgba(30, 30, 30, 0.85);
+            --text: #f8f9fa;
+            --text-light: #adb5bd;
+            --border: rgba(255, 255, 255, 0.1);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
 
-{% block content %}
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
 
-<link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background-image: url('https://images.unsplash.com/photo-1519681393784-d120267933ba');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
 
-<div class="settings-container">
-    {% if current_user.role == 'employee' %}
+        .settings-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .settings-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .settings-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0;
+            color: var(--primary);
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--text-light);
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .settings-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            padding: 0 20px;
+        }
+
+        .tab-btn {
+            padding: 15px 25px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-light);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+        }
+
+        .tab-btn.active:after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-color: var(--primary);
+            border-radius: 3px 3px 0 0;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 25px;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 20px;
+            transition: color 0.2s ease;
+        }
+
+        .back-button:hover {
+            color: var(--primary-hover);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background-color: var(--card-bg);
+            color: var(--text);
+            font-size: 15px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .profile-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .profile-container img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary);
+        }
+
+        .upload-section {
+            margin-top: 15px;
+        }
+
+        .upload-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .upload-label:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .upload-label input {
+            display: none;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn i {
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #e60000;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 51, 51, 0.3);
+        }
+
+        .btn-warning {
+            background-color: var(--warning);
+            color: #333;
+        }
+
+        .btn-warning:hover {
+            background-color: #e6b800;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 204, 0, 0.3);
+        }
+
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+
+        .flash {
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .flash i {
+            font-size: 18px;
+        }
+
+        .flash.success {
+            background-color: rgba(75, 181, 67, 0.2);
+            color: var(--success);
+            border-left: 4px solid var(--success);
+        }
+
+        .flash.danger {
+            background-color: rgba(255, 51, 51, 0.2);
+            color: var(--danger);
+            border-left: 4px solid var(--danger);
+        }
+
+        .access-denied {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-light);
+        }
+
+        .access-denied i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: var(--danger);
+        }
+
+        .access-denied h3 {
+            margin-bottom: 10px;
+            color: var(--text);
+        }
+
+        /* System Settings Styles */
+        .system-sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .system-section {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+        }
+
+        .system-section h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .backup-controls {
+            margin-bottom: 20px;
+        }
+
+        .backup-status, .restore-status {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .backup-status i, .restore-status i {
+            font-size: 18px;
+        }
+
+        .backup-status.success, .restore-status.success {
+            background-color: rgba(75, 181, 67, 0.2);
+            color: var(--success);
+        }
+
+        .backup-status.error, .restore-status.error {
+            background-color: rgba(255, 51, 51, 0.2);
+            color: var(--danger);
+        }
+
+        .backup-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px;
+            background: var(--card-bg);
+        }
+
+        .backup-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            transition: background-color 0.3s ease;
+        }
+
+        .backup-item:hover {
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+
+        .backup-item:last-child {
+            border-bottom: none;
+        }
+
+        .backup-name {
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .backup-details {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .backup-date {
+            color: var(--text-light);
+            font-size: 0.85em;
+        }
+
+        .backup-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+
+        .custom-file {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .custom-file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            cursor: pointer;
+        }
+
+        .custom-file-label {
+            display: block;
+            padding: 12px 15px;
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .custom-file-label:hover {
+            border-color: var(--primary);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        .alert {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-warning {
+            background-color: rgba(255, 204, 0, 0.2);
+            color: var(--warning);
+            border-left: 4px solid var(--warning);
+        }
+
+        .system-info {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .info-value {
+            color: var(--text-light);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .settings-container {
+                margin: 20px;
+                padding: 0;
+            }
+            
+            .settings-tabs {
+                overflow-x: auto;
+                white-space: nowrap;
+                padding: 0 15px;
+            }
+            
+            .tab-btn {
+                padding: 15px;
+            }
+            
+            .tab-content {
+                padding: 20px 15px;
+            }
+            
+            .system-sections {
+                grid-template-columns: 1fr;
+            }
+            
+            .backup-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .backup-details {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+
+        /* Toast notifications */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .toast {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border-radius: 8px;
+            background-color: var(--card-bg);
+            box-shadow: var(--shadow);
+            border-left: 4px solid;
+            margin-bottom: 10px;
+            animation: slideIn 0.3s ease-out;
+            max-width: 350px;
+        }
+
+        .toast i {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        .toast.success {
+            border-left-color: var(--success);
+        }
+
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+
+        .toast.warning {
+            border-left-color: var(--warning);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Rest of your existing styles... */
+
+        /* Enhanced Logo Upload Section */
+        .logo-upload-container {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .logo-preview {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+            border-radius: 8px;
+            border: 2px solid var(--border);
+            background-color: white;
+            padding: 5px;
+            margin-bottom: 15px;
+        }
+
+        .logo-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .logo-upload-btn {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .logo-upload-btn input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .settings-container {
+                margin: 20px;
+                padding: 0;
+            }
+            
+            .settings-tabs {
+                overflow-x: auto;
+                white-space: nowrap;
+                padding: 0 15px;
+            }
+            
+            .tab-btn {
+                padding: 15px;
+            }
+            
+            .tab-content {
+                padding: 20px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="settings-container">
+        {% if current_user.role == 'employee' %}
         <a href="{{ url_for('views.dashboard') }}" class="back-button">
             <i class="fas fa-arrow-left"></i> Back to Dashboard
         </a>
@@ -17,207 +695,720 @@
             <i class="fas fa-arrow-left"></i> Back to Admin Dashboard
         </a>
     {% endif %}
-
-    <div class="settings-tabs">
-        <button class="tab-btn active" onclick="openTab('profile')">Profile Settings</button>
-        <button class="tab-btn" onclick="openTab('company')">Company Settings</button>
-    </div>
-
-    <!-- Flash Messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="flash-messages">
-                {% for category, message in messages %}
-                    <div class="flash {{ category }}">{{ message }}</div>
-                {% endfor %}
-            </div>
-        {% endif %}
-    {% endwith %}
-
-    <!-- Profile Tab -->
-    <div id="profile" class="tab-content active">
-        <form method="POST" enctype="multipart/form-data">
-            {{ form.hidden_tag() }}
-
-            <!-- Profile Picture -->
-            <div class="form-group">
-                <label for="profile_picture"><i class="fas fa-user-circle"></i> Profile Picture</label>
-                <div class="profile-container">
-                    {% if current_user.profile_picture %}
-                        <img src="{{ url_for('static', filename='uploads/' + current_user.profile_picture) }}" width="100" alt="Profile Picture">
-                        <button type="submit" name="delete_picture" class="btn btn-danger">
-                            <i class="fas fa-trash-alt"></i> Delete Picture
-                        </button>
-                    {% else %}
-                        <img src="{{ url_for('static', filename='uploads/default.png') }}" width="100" alt="Default Profile Picture">
-                    {% endif %}
-                </div>
-                <div class="upload-section">
-                    <label class="upload-label">
-                        <i class="fas fa-upload"></i> Upload New Picture
-                        <input type="file" name="profile_picture" class="form-control">
+        
+        <div class="settings-card">
+            <div class="settings-header">
+                <h1 class="settings-title"><i class="fas fa-cog"></i> Settings</h1>
+                <div class="theme-toggle">
+                    <i class="fas fa-sun"></i>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="themeToggle">
+                        <span class="slider"></span>
                     </label>
+                    <i class="fas fa-moon"></i>
                 </div>
             </div>
-
-            <div class="form-group">
-                <label for="first_name">First Name</label>
-                {{ form.first_name(class="form-control") }}
+            
+            <div class="settings-tabs">
+                <button class="tab-btn active" onclick="openTab('profile')">
+                    <i class="fas fa-user"></i> Profile
+                </button>
+                <button class="tab-btn" onclick="openTab('company')">
+                    <i class="fas fa-building"></i> Company
+                </button>
+                <button class="tab-btn" onclick="openTab('system')">
+                    <i class="fas fa-server"></i> System
+                </button>
             </div>
-
-            <div class="form-group">
-                <label for="email">Email</label>
-                {{ form.email(class="form-control") }}
-            </div>
-
-            <div class="form-group">
-                <label for="contact"><i class="fas fa-phone-alt"></i> Phone</label>
-                {{ form.contact(class="form-control") }}
-            </div>
-
-            <div class="form-group">
-                <label for="department">Department</label>
-                {{ form.department(class="form-control") }}
-            </div>
-
-            <div class="form-group">
-                <label for="role">Role</label>
-                {{ form.role(class="form-control") }}
-            </div>
-
-            <div class="form-group">
-                <label for="password"><i class="fas fa-lock"></i> New Password</label>
-                {{ form.password(class="form-control") }}
-            </div>
-
-            <div class="form-group">
-                <label for="confirm_password"><i class="fas fa-check-circle"></i> Confirm Password</label>
-                {{ form.confirm_password(class="form-control") }}
-            </div>
-
-            <button type="submit" name="save_changes" class="btn btn-primary">
-                <i class="fas fa-save"></i> Save Changes
-            </button>
-        </form>
-    </div>
-
-    <!-- Company Tab -->
-    <div id="company" class="tab-content">
-        {% if current_user.role == 'admin' %}
-            <h2><i class="fas fa-building"></i> Company Settings</h2>
-            <form method="POST" enctype="multipart/form-data">
-                {{ company_form.hidden_tag() }}
-                <input type="hidden" name="update_company_settings" value="1">
-    
-                <!-- Company Logo Section -->
-                <div class="form-group">
-                    <label for="logo"><i class="fas fa-image"></i> Company Logo</label>
-                    
-                    {% if current_company %}
-                        <div class="company-logo">
-                            {% if current_company.logo %}
-                                <img src="{{ url_for('static', filename='uploads/' + current_company.logo) }}" alt="Company Logo" id="logoPreview" width="100">
-                            {% else %}
-                                <img src="{{ url_for('static', filename='uploads/default-logo.png') }}" alt="Default Logo" id="logoPreview" width="100">
-                            {% endif %}
-                        </div>
-                    {% else %}
-                        <p>No company settings available.</p>
-                    {% endif %}
-    
-                    <!-- Logo File Upload -->
-                    <input type="file" name="logo" class="form-control" id="logoInput" accept="image/jpeg, image/png">
-                </div>
-    
-                <!-- Company Information -->
-                <div class="form-group">
-                    {{ company_form.company_name.label }}
-                    {{ company_form.company_name(class="form-control") }}
-                </div>
-    
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        {{ company_form.company_contact.label }}
-                        {{ company_form.company_contact(class="form-control") }}
-                    </div>
-                    <div class="form-group col-md-6">
-                        {{ company_form.company_address.label }}
-                        {{ company_form.company_address(class="form-control", rows="3") }}
-                    </div>
-                </div>
-    
-                <hr>
-    
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        {{ company_form.work_start_time.label }}
-                        {{ company_form.work_start_time(class="form-control", type="time") }}
-                    </div>
-                    <div class="form-group col-md-6">
-                        {{ company_form.work_end_time.label }}
-                        {{ company_form.work_end_time(class="form-control", type="time") }}
-                    </div>
-                </div>
-    
-                <div class="form-group">
-                    {{ company_form.lunch_duration.label }}
-                    {{ company_form.lunch_duration(class="form-control") }}
-                </div>
-    
-                <div class="form-group">
-                    {{ company_form.work_days.label }}
-                    <div class="work-days-checkboxes">
-                        {% for choice in company_form.work_days %}
-                            <div class="form-check form-check-inline">
-                                {{ choice(class="form-check-input") }}
-                                {{ choice.label(class="form-check-label") }}
+            
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="flash {{ category }}">
+                                <i class="fas fa-{% if category == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+                                {{ message }}
                             </div>
                         {% endfor %}
                     </div>
-                </div>
-    
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i> Save Company Settings
-                </button>
-            </form>
-        {% else %}
-            <div class="access-denied">
-                <i class="fas fa-lock fa-3x text-danger"></i>
-                <h3>Access Denied</h3>
-                <p>You do not have permission to view or edit company settings.</p>
+                {% endif %}
+            {% endwith %}
+            
+            <!-- Profile Tab -->
+            <div id="profile" class="tab-content active">
+                <form method="POST" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+
+                    <!-- Profile Picture -->
+                    <div class="form-group">
+                        <label for="profile_picture"><i class="fas fa-user-circle"></i> Profile Picture</label>
+                        <div class="profile-container">
+                            {% if current_user.profile_picture %}
+                                <img src="{{ url_for('static', filename='uploads/' + current_user.profile_picture) }}" alt="Profile Picture">
+                                <button type="submit" name="delete_picture" class="btn btn-danger">
+                                    <i class="fas fa-trash-alt"></i> Delete
+                                </button>
+                            {% else %}
+                                <img src="{{ url_for('static', filename='uploads/default.png') }}" alt="Default Profile Picture">
+                            {% endif %}
+                        </div>
+                        <div class="upload-section">
+                            <label class="upload-label">
+                                <i class="fas fa-upload"></i> Upload New Picture
+                                <input type="file" name="profile_picture" class="form-control">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="first_name">First Name</label>
+                        {{ form.first_name(class="form-control") }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        {{ form.email(class="form-control") }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contact"><i class="fas fa-phone-alt"></i> Phone</label>
+                        {{ form.contact(class="form-control") }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="department">Department</label>
+                        {{ form.department(class="form-control") }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="role">Role</label>
+                        {{ form.role(class="form-control") }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password"><i class="fas fa-lock"></i> New Password</label>
+                        {{ form.password(class="form-control") }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirm_password"><i class="fas fa-check-circle"></i> Confirm Password</label>
+                        {{ form.confirm_password(class="form-control") }}
+                    </div>
+
+                    <button type="submit" name="save_changes" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </form>
             </div>
-        {% endif %}
+            
+            <!-- Company Tab - Enhanced Version -->
+            <div id="company" class="tab-content">
+                {% if current_user.role in ['admin', 'company_admin'] %}
+                    <h2><i class="fas fa-building"></i> Company Settings</h2>
+                        {{ company_form.hidden_tag() }}
+                        
+                        <!-- Enhanced Logo Section -->
+                        <div class="logo-upload-container">
+                            <label class="form-label"><i class="fas fa-image"></i> Company Logo</label>
+                            <div>
+                                <img id="companyLogoPreview" 
+                                     src="{{ url_for('static', filename='uploads/' + current_user.company.logo) if current_user.company.logo else url_for('static', filename='images/default-company.png') }}" 
+                                     alt="Company Logo" 
+                                     class="logo-preview">
+                            </div>
+                            
+                            <div class="logo-actions mt-3">
+                                <div class="logo-upload-btn">
+                                    <button type="button" class="btn btn-primary">
+                                        <i class="fas fa-upload me-2"></i> Change Logo
+                                    </button>
+                                    <input type="file" id="companyLogoInput" name="logo" accept="image/*">
+                                </div>
+                                
+                                {% if current_user.company.logo %}
+                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteLogoModal">
+                                    <i class="fas fa-trash-alt me-2"></i> Remove
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Company Information -->
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="company_name">Company Name</label>
+                                    <input type="text" class="form-control" id="company_name" name="company_name" 
+                                           value="{{ current_user.company.name }}" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="registration_number">Registration Number</label>
+                                    <input type="text" class="form-control" id="registration_number" name="registration_number" 
+                                           value="{{ current_user.company.registration_number }}" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="contact_email">Contact Email</label>
+                                    <input type="email" class="form-control" id="contact_email" name="contact_email" 
+                                           value="{{ current_user.company.contact_email }}" required>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="phone">Phone Number</label>
+                                    <input type="tel" class="form-control" id="phone" name="phone" 
+                                           value="{{ current_user.company.phone or '' }}">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="address">Address</label>
+                                    <textarea class="form-control" id="address" name="address" rows="3">{{ current_user.company.address or '' }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Work Schedule Settings -->
+                        <div class="card mt-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0"><i class="fas fa-clock me-2"></i> Work Schedule</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="work_start_time">Work Start Time</label>
+                                            <input type="time" class="form-control" id="work_start_time" name="work_start_time" 
+                                                   value="{{ current_user.company.work_start_time or '09:00' }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="work_end_time">Work End Time</label>
+                                            <input type="time" class="form-control" id="work_end_time" name="work_end_time" 
+                                                   value="{{ current_user.company.work_end_time or '17:00' }}" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group mt-3">
+                                    <label for="lunch_duration">Lunch Duration (minutes)</label>
+                                    <input type="number" class="form-control" id="lunch_duration" name="lunch_duration" 
+                                           min="15" max="120" value="{{ current_user.company.lunch_duration or 60 }}" required>
+                                </div>
+                                
+                                <div class="form-group mt-3">
+                                    <label>Work Days</label>
+                                    <div class="d-flex flex-wrap gap-3">
+                                        {% for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] %}
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="day_{{ day }}" 
+                                                   name="work_days" value="{{ day }}" 
+                                                   {% if day in (current_user.company.work_days or ['Monday','Tuesday','Wednesday','Thursday','Friday']) %}checked{% endif %}>
+                                            <label class="form-check-label" for="day_{{ day }}">{{ day }}</label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i> Save Company Settings
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <!-- Delete Logo Modal -->
+                    <div class="modal fade" id="deleteLogoModal" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Confirm Logo Removal</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure you want to remove the company logo? A default logo will be shown instead.
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <form action="{{ url_for('views.delete_company_logo') }}" method="POST">
+                                        <button type="submit" class="btn btn-danger">
+                                            <i class="fas fa-trash-alt me-2"></i> Remove Logo
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        You don't have permission to edit company settings.
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- System Settings Tab -->
+            <div id="system" class="tab-content">
+                {% if current_user.role == 'admin' %}
+                    <h2><i class="fas fa-server"></i> System Settings</h2>
+                    
+                    <div class="system-sections">
+                        <!-- Backup Section -->
+                        <div class="system-section">
+                            <h3><i class="fas fa-database"></i> Database Backup</h3>
+                            <p>Create a complete backup of your system database.</p>
+                            
+                            <div class="backup-controls">
+                                <button id="createBackupBtn" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Create Backup Now
+                                </button>
+                                
+                                <div class="backup-status" id="backupStatus"></div>
+                            </div>
+                            
+                            <div class="existing-backups">
+                                <h4>Existing Backups</h4>
+                                <div class="backup-list" id="backupList">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="sr-only">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Restore Section -->
+                        <div class="system-section">
+                            <h3><i class="fas fa-history"></i> Database Restore</h3>
+                            <p>Restore the system from a previous backup.</p>
+                            
+                            <div class="restore-form">
+                                <form id="restoreForm" enctype="multipart/form-data">
+                                    <div class="form-group">
+                                        <label for="backupFile"><i class="fas fa-file-upload"></i> Select Backup File</label>
+                                        <div class="custom-file">
+                                            <input type="file" class="custom-file-input" id="backupFile" name="backup_file" accept=".sql" required>
+                                            <label class="custom-file-label" for="backupFile">Choose file...</label>
+                                        </div>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-warning" id="restoreBtn">
+                                        <i class="fas fa-redo"></i> Restore Database
+                                    </button>
+                                    
+                                    <div class="alert alert-warning">
+                                        <i class="fas fa-exclamation-triangle"></i> Warning: This will overwrite all current data!
+                                    </div>
+                                    
+                                    <div class="restore-status" id="restoreStatus"></div>
+                                </form>
+                            </div>
+                        </div>
+                        
+                        <!-- System Info Section -->
+                        <div class="system-section">
+                            <h3><i class="fas fa-info-circle"></i> System Information</h3>
+                            
+                            <div class="system-info">
+                                <div class="info-item">
+                                    <span class="info-label">System Version:</span>
+                                    <span class="info-value">1.0.0</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Database Type:</span>
+                                    <span class="info-value">PostgreSQL</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Last Backup:</span>
+                                    <span class="info-value" id="lastBackupDate">Never</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Storage Used:</span>
+                                    <span class="info-value" id="storageUsed">Calculating...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="access-denied">
+                        <i class="fas fa-lock"></i>
+                        <h3>Access Denied</h3>
+                        <p>You do not have permission to view or edit system settings.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
     </div>
-    
-    </div>    
-<!-- Tabs Script -->
-<script>
-function openTab(tabName) {
-    const tabContents = document.getElementsByClassName("tab-content");
-    const tabButtons = document.getElementsByClassName("tab-btn");
 
-    for (let i = 0; i < tabContents.length; i++) {
-        tabContents[i].classList.remove("active");
-    }
-    for (let i = 0; i < tabButtons.length; i++) {
-        tabButtons[i].classList.remove("active");
-    }
+    <div class="toast-container" id="toastContainer"></div>
 
-    document.getElementById(tabName).classList.add("active");
-    event.currentTarget.classList.add("active");
-}
-</script>
-<script>
-    document.getElementById("logoInput").addEventListener("change", function(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                // Update the src of the image with the file preview
-                document.getElementById("logoPreview").src = e.target.result;
-            };
-            reader.readAsDataURL(file);
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+        
+        // Check for saved theme preference or use the system preference
+        const currentTheme = localStorage.getItem('theme') || 
+                            (prefersDarkScheme.matches ? 'dark' : 'light');
+        
+        if (currentTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.checked = true;
         }
-    });
-</script>
-{% endblock %}
+        
+        themeToggle.addEventListener('change', function() {
+            if (this.checked) {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+        
+        // Tab functionality
+        function openTab(tabName) {
+            const tabContents = document.getElementsByClassName("tab-content");
+            const tabButtons = document.getElementsByClassName("tab-btn");
+            
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove("active");
+            }
+            for (let i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove("active");
+            }
+            
+            document.getElementById(tabName).classList.add("active");
+            event.currentTarget.classList.add("active");
+        }
+        
+        // Company logo preview
+        document.getElementById('companyLogoInput')?.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('companyLogoPreview').src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Initialize Bootstrap tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        
+        // Backup and Restore JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            // Only initialize if we're on the system tab
+            if (!document.getElementById('system')) return;
+        
+            // Load backups list and system info
+            loadBackupsList();
+            loadSystemInfo();
+            
+            // Backup button click handler
+            document.getElementById('createBackupBtn')?.addEventListener('click', createBackup);
+            
+            // Restore form submission
+            const restoreForm = document.getElementById('restoreForm');
+            if (restoreForm) {
+                restoreForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    if (confirm('Are you sure you want to restore from this backup? All current data will be lost!')) {
+                        restoreDatabase();
+                    }
+                });
+            }
+            
+            // File input label update
+            const backupFileInput = document.getElementById('backupFile');
+            if (backupFileInput) {
+                backupFileInput.addEventListener('change', function(e) {
+                    const fileName = e.target.files[0] ? e.target.files[0].name : 'Choose file...';
+                    document.querySelector('.custom-file-label').textContent = fileName;
+                });
+            }
+        });
+        
+        function loadBackupsList() {
+            fetch('/admin/backups')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const backupList = document.getElementById('backupList');
+                    if (!backupList) return;
+                    
+                    if (data.length > 0) {
+                        backupList.innerHTML = '';
+                        data.forEach(backup => {
+                            const backupItem = document.createElement('div');
+                            backupItem.className = 'backup-item';
+                            backupItem.innerHTML = `
+                                <div class="backup-name">
+                                    <i class="fas fa-file-archive"></i> ${backup.filename}
+                                </div>
+                                <div class="backup-details">
+                                    <span class="backup-size">${formatFileSize(backup.size)}</span>
+                                    <span class="backup-date">${new Date(backup.created_at).toLocaleString()}</span>
+                                    <div class="backup-actions">
+                                        <a href="/admin/backups/${backup.filename}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                        <button class="btn btn-danger btn-sm delete-btn" data-filename="${backup.filename}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                            backupList.appendChild(backupItem);
+                        });
+                        
+                        // Set last backup date
+                        const lastBackupDate = document.getElementById('lastBackupDate');
+                        if (lastBackupDate) {
+                            const lastBackup = data[0];
+                            lastBackupDate.textContent = new Date(lastBackup.created_at).toLocaleString();
+                        }
+                        
+                        // Add event listeners to delete buttons
+                        document.querySelectorAll('.delete-btn').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                deleteBackup(this.getAttribute('data-filename'));
+                            });
+                        });
+                    } else {
+                        backupList.innerHTML = '<div class="no-backups">No backups available</div>';
+                        const lastBackupDate = document.getElementById('lastBackupDate');
+                        if (lastBackupDate) {
+                            lastBackupDate.textContent = 'Never';
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading backups:', error);
+                    const backupList = document.getElementById('backupList');
+                    if (backupList) {
+                        backupList.innerHTML = '<div class="error">Error loading backups</div>';
+                    }
+                    showToast('Failed to load backups', 'error');
+                });
+        }
+        
+        function loadSystemInfo() {
+            // Calculate storage used
+            fetch('/admin/backups/storage')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const storageUsed = document.getElementById('storageUsed');
+                    if (storageUsed) {
+                        storageUsed.textContent = formatFileSize(data.storage_used);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading system info:', error);
+                    const storageUsed = document.getElementById('storageUsed');
+                    if (storageUsed) {
+                        storageUsed.textContent = 'Error';
+                    }
+                });
+        }
+        
+        function createBackup() {
+            const backupBtn = document.getElementById('createBackupBtn');
+            const statusDiv = document.getElementById('backupStatus');
+            
+            if (!backupBtn || !statusDiv) return;
+            
+            backupBtn.disabled = true;
+            statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating backup...';
+            statusDiv.className = 'backup-status';
+            
+            fetch('/admin/backup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': getCSRFToken()
+                },
+                body: JSON.stringify({
+                    description: 'Manual backup from admin panel'
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    statusDiv.innerHTML = '<i class="fas fa-check-circle"></i> Backup created successfully!';
+                    statusDiv.classList.add('success');
+                    loadBackupsList();
+                    loadSystemInfo();
+                    showToast('Backup created successfully', 'success');
+                } else {
+                    statusDiv.innerHTML = `<i class="fas fa-times-circle"></i> ${data.error || 'Backup failed'}`;
+                    statusDiv.classList.add('error');
+                    showToast(data.error || 'Backup failed', 'error');
+                }
+                backupBtn.disabled = false;
+            })
+            .catch(error => {
+                statusDiv.innerHTML = `<i class="fas fa-times-circle"></i> Backup failed: ${error.message}`;
+                statusDiv.classList.add('error');
+                backupBtn.disabled = false;
+                showToast(`Backup failed: ${error.message}`, 'error');
+            });
+        }
+        
+        function restoreDatabase() {
+            const form = document.getElementById('restoreForm');
+            const formData = new FormData(form);
+            const statusDiv = document.getElementById('restoreStatus');
+            const restoreBtn = document.getElementById('restoreBtn');
+            
+            if (!form || !statusDiv || !restoreBtn) return;
+            
+            restoreBtn.disabled = true;
+            statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Restoring database...';
+            statusDiv.className = 'restore-status';
+            
+            fetch('/admin/backups/restore', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-Token': getCSRFToken()
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    statusDiv.innerHTML = '<i class="fas fa-check-circle"></i> Database restored successfully!';
+                    statusDiv.classList.add('success');
+                    // Reload the page after successful restore
+                    setTimeout(() => location.reload(), 2000);
+                    showToast('Database restored successfully', 'success');
+                } else {
+                    statusDiv.innerHTML = `<i class="fas fa-times-circle"></i> ${data.error || 'Restore failed'}`;
+                    statusDiv.classList.add('error');
+                    showToast(data.error || 'Restore failed', 'error');
+                }
+                restoreBtn.disabled = false;
+            })
+            .catch(error => {
+                statusDiv.innerHTML = `<i class="fas fa-times-circle"></i> Restore failed: ${error.message}`;
+                statusDiv.classList.add('error');
+                restoreBtn.disabled = false;
+                showToast(`Restore failed: ${error.message}`, 'error');
+            });
+        }
+        
+        function deleteBackup(filename) {
+            if (confirm(`Are you sure you want to delete backup ${filename}?`)) {
+                fetch(`/admin/backups/delete/${filename}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': getCSRFToken()
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        loadBackupsList();
+                        loadSystemInfo();
+                        showToast('Backup deleted successfully', 'success');
+                    } else {
+                        showToast(`Error deleting backup: ${data.error}`, 'error');
+                    }
+                })
+                .catch(error => {
+                    showToast(`Error deleting backup: ${error.message}`, 'error');
+                });
+            }
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        function getCSRFToken() {
+            const meta = document.querySelector('meta[name="csrf-token"]');
+            return meta ? meta.content : '';
+        }
+        
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            let icon;
+            switch(type) {
+                case 'success':
+                    icon = 'fa-check-circle';
+                    break;
+                case 'error':
+                    icon = 'fa-times-circle';
+                    break;
+                case 'warning':
+                    icon = 'fa-exclamation-triangle';
+                    break;
+                default:
+                    icon = 'fa-info-circle';
+            }
+            
+            toast.innerHTML = `
+                <i class="fas ${icon}"></i>
+                <span>${message}</span>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Auto-remove toast after 5 seconds
+            setTimeout(() => {
+                toast.classList.add('fade-out');
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
+        
+        function createToastContainer() {
+            const container = document.createElement('div');
+            container.id = 'toastContainer';
+            container.className = 'toast-container';
+            document.body.appendChild(container);
+            return container;
+        }
+    </script>
+</body>
+</html>

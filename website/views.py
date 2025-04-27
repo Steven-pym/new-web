@@ -1,19 +1,26 @@
-from flask import Blueprint, flash, render_template, redirect, request, url_for, send_file, session, current_app, send_from_directory, Response, abort
+from flask import Blueprint, flash, render_template, redirect, request, url_for, send_file, session, current_app, send_from_directory, Response, abort, jsonify
+from jinja2 import TemplateNotFound
 from werkzeug.utils import secure_filename
 from flask_login import login_required, current_user
 from .models import User, WorkSession, AuditLog, CompanySettings, Company
 from datetime import datetime, timedelta, date, time
 from . import db
 import pandas as pd
+from flask import current_app
 import io
 from .forms import EditProfileForm, CompanySettingsForm, CompanyRegistrationForm
 from .decorators import admin_required
 from collections import defaultdict
 import os, uuid
 from sqlalchemy import func, distinct
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 import calendar
 import csv
 from openpyxl import Workbook
+from pathlib import Path
+import subprocess
+import psycopg2
+from urllib.parse import urlparse
 
 # Define allowed_file function to validate file extensions
 def allowed_file(filename):
@@ -452,7 +459,18 @@ def edit_employee(user_id):
         return redirect(url_for('views.manage_users'))
 
     return render_template('edit_user.html', user=user)
+# Helper function to parse database URL
+def parse_db_url(db_url):
+    parsed = urlparse(db_url)
+    return {
+        'host': parsed.hostname,
+        'user': parsed.username,
+        'password': parsed.password,
+        'dbname': parsed.path.lstrip('/'),
+        'port': parsed.port or 5432
+    }
 
+# Add Employee
 # Add Employee
 @views.route('/admin/add-employee', methods=['GET', 'POST'])
 @login_required
@@ -710,62 +728,43 @@ def terms():
 @views.route("/upload_profile", methods=["POST"])
 @login_required
 def upload_profile():
-    if "file" not in request.files:
-        flash("No file selected", "error")
+    # Verify CSRF token
+    csrf_token = request.form.get('csrf_token')
+    from flask_wtf.csrf import validate_csrf  # Add this import at the top of the file if not already present
+
+    if not csrf_token or not validate_csrf(csrf_token):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({"success": False, "message": "CSRF token invalid"}), 403
+        flash("Security token invalid", "error")
         return redirect(request.referrer or url_for("views.dashboard"))
 
-    file = request.files["file"]
-
-    if file.filename == "":
-        flash("No file selected", "error")
-        return redirect(request.referrer or url_for("views.dashboard"))
-
-    if not allowed_file(file.filename):
-        flash("Invalid file type. Only PNG, JPG, JPEG, and GIF allowed.", "error")
-        return redirect(request.referrer or url_for("views.dashboard"))
+    # Handle AJAX vs normal form submission
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
     try:
-        # Check file size without saving
-        file.seek(0, os.SEEK_END)
-        file_size = file.tell()
-        file.seek(0)  # Reset file pointer
+        # [Your existing file validation logic...]
         
-        if file_size > 2 * 1024 * 1024:  # 2MB limit
-            flash("File too large (max 2MB)", "error")
-            return redirect(request.referrer or url_for("views.dashboard"))
+        # After successful upload:
+        if is_ajax:
+            return jsonify({
+                "success": True,
+                "message": "Profile picture updated!",
+                "newImage": url_for('static', filename=f'uploads/{request.files["profile_picture"].filename}')
+            })
+        
+        flash("Profile picture updated!", "success")
+        return redirect(request.referrer or url_for("views.dashboard"))
 
-        # Ensure upload folder exists
-        upload_folder = current_app.config["UPLOAD_FOLDER"]
-        os.makedirs(upload_folder, exist_ok=True)
-
-        # Generate secure filename
-        ext = os.path.splitext(file.filename)[1].lower()
-        filename = f"{uuid.uuid4().hex}{ext}"
-        filepath = os.path.join(upload_folder, filename)
-
-        # Save the file
-        file.save(filepath)
-
-        # Delete old profile picture if exists
-        if current_user.profile_picture:
-            old_filepath = os.path.join(upload_folder, current_user.profile_picture)
-            try:
-                if os.path.exists(old_filepath):
-                    os.remove(old_filepath)
-            except Exception as e:
-                current_app.logger.error(f"Error deleting old profile picture: {str(e)}")
-
-        # Update database
-        current_user.profile_picture = filename
-        db.session.commit()
-
-        flash("Profile picture updated successfully!", "success")
     except Exception as e:
-        current_app.logger.error(f"Error uploading profile picture: {str(e)}")
-        flash("Error updating profile picture", "error")
-        db.session.rollback()
-
-    return redirect(request.referrer or url_for("views.dashboard"))
+        current_app.logger.error(f"Upload error: {str(e)}")
+        if is_ajax:
+            return jsonify({
+                "success": False,
+                "message": str(e) if current_app.debug else "Upload failed"
+            }), 500
+        
+        flash("Upload failed", "error")
+        return redirect(request.referrer or url_for("views.dashboard"))
 
 
 @views.route('/uploads/<filename>')
@@ -873,67 +872,43 @@ def settings():
 def chat():
     return render_template('chat.html')
 
-@views.route('/register_company', methods=['GET', 'POST'])
-@login_required
+@views.route('/register-company', methods=['GET', 'POST'])
 def register_company():
-    # Check if user already has a company
-    if current_user.company:
-        flash('You are already associated with a company.', 'info')
-        return redirect(url_for('views.dashboard'))
-
     form = CompanyRegistrationForm()
-
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            try:
-                # Check if company with this registration number already exists
-                existing_company = Company.query.filter_by(
-                    registration_number=form.registration_number.data
-                ).first()
-                
-                if existing_company:
-                    flash('A company with this registration number already exists.', 'danger')
-                    return render_template('admin_dashboard.html', form=form)
-
-                # Create new company
-                company = Company(
-                    name=form.name.data,
-                    registration_number=form.registration_number.data,
-                    contact_email=form.contact_email.data,
-                    phone=form.phone.data,
-                    address=form.address.data,
-                    created_by=current_user.id
-                )
-                
-                db.session.add(company)
-                db.session.commit()
-
-                # Associate user with company
-                current_user.company_id = company.id
-                current_user.role = 'company_admin'  # Optional: set user role
-                db.session.commit()
-
-                flash('Company registered successfully!', 'success')
-                return redirect(url_for('views.company_dashboard'))
-
-            except Exception as e:
-                db.session.rollback()
-                flash(f'An error occurred while registering your company: {str(e)}', 'danger')
-                return render_template('admin_dashboard.html', form=form)
-
-        else:
-            # Form validation failed
-            error_messages = []
-            for field, errors in form.errors.items():
-                for error in errors:
-                    error_messages.append(f"{getattr(form, field).label.text}: {error}")
+    
+    if form.validate_on_submit():
+        try:
+            new_company = Company(
+                name=form.name.data,
+                registration_number=form.registration_number.data,
+                contact_email=form.contact_email.data,
+                phone=form.phone.data,
+                address=form.address.data
+            )
             
-            flash('Please correct the following errors:', 'danger')
-            for message in error_messages:
-                flash(message, 'danger')
-
-    # For GET requests or when form validation fails
-    return render_template('admin_dashboard.html', form=form)
+            db.session.add(new_company)
+            db.session.commit()
+            
+            current_user.company_id = new_company.id
+            db.session.commit()
+            
+            flash('Company registered successfully!', 'success')
+            
+            # Check if user came from a specific page
+            next_page = request.args.get('next')
+            if next_page:
+                return redirect(next_page)
+            
+            try:
+                return render_template('company_dashboard.html')
+            except TemplateNotFound:
+                return redirect(url_for('views.index'))  # Fallback to home page
+        
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error registering company: {str(e)}', 'error')
+    
+    return render_template('register_company.html', form=form)
 
 
 @views.route('/manage_companies', methods=['GET', 'POST'])
@@ -1028,7 +1003,277 @@ def company_employees():
         else:
             flash('Company not found!', 'danger')
     elif request.method == 'POST':
-        flash('There were errors with your update. Please check the form.', 'danger')   
+        db_config = parse_db_url(current_app.config['SQLALCHEMY_DATABASE_URI'])
 
     return render_template('company_employees.html', form=form)
 
+@views.route('/backup', methods=['POST'])
+@login_required
+def backup_data():
+    if current_user.role != 'admin':
+        abort(403)
+
+    try:
+        # Use psycopg2 to create a backup-friendly environment
+        conn = psycopg2.connect(current_app.config['SQLALCHEMY_DATABASE_URI'])
+        conn.set_session(autocommit=True)
+        
+        # Create a named backup file
+        backup_filename = f"backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.sql"
+        backup_path = os.path.join(current_app.config['BACKUP_FOLDER'], backup_filename)
+        
+        # Ensure backup directory exists
+        os.makedirs(current_app.config['BACKUP_FOLDER'], exist_ok=True)
+
+        # Execute pg_dump with optimized parameters
+        subprocess.run([
+            current_app.config['PG_DUMP_PATH'],
+            '-h', 'localhost',
+            '-U', 'postgres',
+            '-d', 'employees',
+            '-F', 'c',  # Custom format (compressed)
+            '-f', backup_path,
+            '-v',       # Verbose mode for debugging
+            '--no-sync' # Bypass fsync for faster backup
+        ], check=True, env={
+            'PGPASSWORD': '1234567',
+            **os.environ
+        })
+
+        flash(f'Backup created: {backup_filename}', 'success')
+        return send_from_directory(current_app.config['BACKUP_FOLDER'], 
+                                backup_filename, 
+                                as_attachment=True)
+
+    except Exception as e:
+        flash(f'Backup failed: {str(e)}', 'danger')
+        current_app.logger.error(f"Backup error: {str(e)}", exc_info=True)
+        return redirect(url_for('views.settings'))
+    
+@views.route('/restore', methods=['POST'])
+@login_required
+def restore_backup():
+
+    if current_user.role != 'admin':
+        abort(403)
+
+    file = request.files.get('restore_file')
+
+    if not file or not file.filename.endswith('.sql'):
+        flash('⚠️ Invalid file format. Please upload a .sql file.', 'warning')
+        return redirect(url_for('views.settings'))
+
+    filename = secure_filename(file.filename)
+    restore_path = os.path.join(current_app.config['BACKUP_FOLDER'], filename)
+    
+    # Save the uploaded file to the backup folder
+    file.save(restore_path)
+
+    try:
+        # Run pg_restore to restore the database from the backup file
+        subprocess.run([
+            current_app.config['PG_RESTORE_PATH'],
+            '--host=localhost',
+            f'--username={current_app.config["DB_USER"]}',
+            f'--dbname={current_app.config["DB_NAME"]}',
+            '--clean',
+            '--if-exists',
+            '--no-owner',
+            restore_path
+        ], check=True, env={
+            'PGPASSWORD': current_app.config['DB_PASSWORD'],
+            **os.environ
+        })
+
+        flash('✅ Database restored successfully!', 'success')
+    except FileNotFoundError as e:
+        flash(f'Error: {str(e)}', 'danger')
+    except subprocess.CalledProcessError as e:
+        flash(f'Error during restore: {str(e)}', 'danger')
+
+    return redirect(url_for('views.settings'))
+
+@views.route('/edit-company/<int:company_id>', methods=['GET', 'POST'])
+def edit_company(company_id):
+    # Ensure the current user owns this company
+    if not current_user.company or current_user.company.id != company_id:
+        flash('You do not have permission to edit this company', 'error')
+        return redirect(url_for('views.company_dashboard'))
+    
+    company = Company.query.get_or_404(company_id)
+    from .forms import CompanyEditForm  # Ensure this import is added at the top of the file
+    form = CompanyEditForm(obj=company)
+    
+    if form.validate_on_submit():
+        try:
+            form.populate_obj(company)
+            db.session.commit()
+            flash('Company updated successfully!', 'success')
+            return redirect(url_for('views.company_dashboard'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error updating company: {str(e)}', 'error')
+    
+    return render_template('edit_company.html', form=form, company=company)
+
+@views.route('/upload-company-logo', methods=['POST'])
+def upload_company_logo():
+    if 'logo' not in request.files:
+        flash('No file selected', 'error')
+        return redirect(request.referrer)
+    
+    file = request.files['logo']
+    if file.filename == '':
+        flash('No file selected', 'error')
+        return redirect(request.referrer)
+    
+    if file and allowed_file(file.filename):
+        try:
+            # Ensure upload folder exists
+            os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
+            
+            # Generate secure filename
+            filename = secure_filename(f"company_{current_user.company.id}.{file.filename.rsplit('.', 1)[1].lower()}")
+            filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+            
+            # Save file
+            file.save(filepath)
+            
+            # Update company logo in database
+            current_user.company.logo = filename
+            db.session.commit()
+            
+            flash('Logo uploaded successfully!', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error uploading logo: {str(e)}', 'error')
+    else:
+        flash('Allowed file types are: png, jpg, jpeg, gif', 'error')
+    
+    return redirect(url_for('views.company_dashboard'))
+
+# Logo Handling Routes
+@views.route('/update-company-logo', methods=['POST'])
+@login_required
+def update_company_logo():
+    if 'logo' not in request.files:
+        flash('No file selected', 'error')
+        return redirect(url_for('views.company_dashboard'))
+    
+    file = request.files['logo']
+    if file.filename == '':
+        flash('No file selected', 'error')
+        return redirect(url_for('views.company_dashboard'))
+    
+    if file and allowed_file(file.filename):
+        try:
+            # Ensure upload folder exists
+            os.makedirs('static/uploads', exist_ok=True)
+            
+            # Generate secure filename
+            filename = secure_filename(f"company_{current_user.company.id}.{file.filename.rsplit('.', 1)[1].lower()}")
+            filepath = os.path.join('static/uploads', filename)
+            
+            # Save file
+            file.save(filepath)
+            
+            # Delete old logo if exists
+            if current_user.company.logo and os.path.exists(os.path.join('static/uploads', current_user.company.logo)):
+                os.remove(os.path.join('static/uploads', current_user.company.logo))
+            
+            # Update company logo in database
+            current_user.company.logo = filename
+            db.session.commit()
+            
+            flash('Logo updated successfully!', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error uploading logo: {str(e)}', 'error')
+    else:
+        flash('Allowed file types are: png, jpg, jpeg, gif', 'error')
+    
+    return redirect(url_for('views.company_dashboard'))
+
+@views.route('/delete-company-logo', methods=['POST'])
+@login_required
+def delete_company_logo():
+    try:
+        if current_user.company.logo:
+            # Delete file from filesystem
+            if os.path.exists(os.path.join('static/uploads', current_user.company.logo)):
+                os.remove(os.path.join('static/uploads', current_user.company.logo))
+            
+            # Update database
+            current_user.company.logo = None
+            db.session.commit()
+            flash('Logo deleted successfully', 'success')
+        else:
+            flash('No logo exists to delete', 'warning')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error deleting logo: {str(e)}', 'error')
+    
+    return redirect(url_for('views.company_dashboard'))
+
+# Company Info Update Route
+@views.route('/update-company-info', methods=['POST'])
+@login_required
+def update_company_info():
+    try:
+        company = current_user.company
+        company.name = request.form.get('name')
+        company.registration_number = request.form.get('registration_number')
+        company.contact_email = request.form.get('contact_email')
+        company.phone = request.form.get('phone')
+        company.address = request.form.get('address')
+        
+        db.session.commit()
+        flash('Company information updated successfully!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error updating company information: {str(e)}', 'error')
+    
+    return redirect(url_for('views.company_dashboard'))
+
+# Helper function for file uploads
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}
+
+@views.route('/api/users/all')
+@login_required
+def get_all_users():
+    try:
+        users = User.query.all()
+        company_id = current_user.company.id
+        
+        users_data = [{
+            'id': user.id,
+            'name': f"{user.first_name} {user.last_name}",
+            'email': user.email,
+            'position': getattr(user, 'position', 'N/A'),
+            'current_company': user.company.name if user.company else 'Unlinked',
+            'company_id': user.company_id
+        } for user in users]
+        
+        return jsonify(users_data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@views.route('/api/company/toggle-user-link', methods=['POST'])
+@login_required
+def toggle_user_link():
+    try:
+        data = request.get_json()
+        user = User.query.get(data['user_id'])
+        
+        if data['should_link']:
+            user.company_id = data['company_id']
+        else:
+            user.company_id = None
+            
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500

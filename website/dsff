@@ -1,0 +1,501 @@
+{% extends 'base.html' %}
+
+{% block title %}Settings{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+
+<div class="settings-container">
+    {% if current_user.role == 'employee' %}
+        <a href="{{ url_for('views.dashboard') }}" class="back-button">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    {% else %}
+        <a href="{{ url_for('auth.admin_dashboard') }}" class="back-button">
+            <i class="fas fa-arrow-left"></i> Back to Admin Dashboard
+        </a>
+    {% endif %}
+
+    <div class="settings-tabs">
+        <button class="tab-btn active" onclick="openTab('profile')">Profile Settings</button>
+        <button class="tab-btn" onclick="openTab('company')">Company Settings</button>
+        <button class="tab-btn" onclick="openTab('system')">System Settings</button>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Profile Tab -->
+    <div id="profile" class="tab-content active">
+        <form method="POST" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+
+            <!-- Profile Picture -->
+            <div class="form-group">
+                <label for="profile_picture"><i class="fas fa-user-circle"></i> Profile Picture</label>
+                <div class="profile-container">
+                    {% if current_user.profile_picture %}
+                        <img src="{{ url_for('static', filename='uploads/' + current_user.profile_picture) }}" width="100" alt="Profile Picture">
+                        <button type="submit" name="delete_picture" class="btn btn-danger">
+                            <i class="fas fa-trash-alt"></i> Delete Picture
+                        </button>
+                    {% else %}
+                        <img src="{{ url_for('static', filename='uploads/default.png') }}" width="100" alt="Default Profile Picture">
+                    {% endif %}
+                </div>
+                <div class="upload-section">
+                    <label class="upload-label">
+                        <i class="fas fa-upload"></i> Upload New Picture
+                        <input type="file" name="profile_picture" class="form-control">
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="first_name">First Name</label>
+                {{ form.first_name(class="form-control") }}
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                {{ form.email(class="form-control") }}
+            </div>
+
+            <div class="form-group">
+                <label for="contact"><i class="fas fa-phone-alt"></i> Phone</label>
+                {{ form.contact(class="form-control") }}
+            </div>
+
+            <div class="form-group">
+                <label for="department">Department</label>
+                {{ form.department(class="form-control") }}
+            </div>
+
+            <div class="form-group">
+                <label for="role">Role</label>
+                {{ form.role(class="form-control") }}
+            </div>
+
+            <div class="form-group">
+                <label for="password"><i class="fas fa-lock"></i> New Password</label>
+                {{ form.password(class="form-control") }}
+            </div>
+
+            <div class="form-group">
+                <label for="confirm_password"><i class="fas fa-check-circle"></i> Confirm Password</label>
+                {{ form.confirm_password(class="form-control") }}
+            </div>
+
+            <button type="submit" name="save_changes" class="btn btn-primary">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
+        </form>
+    </div>
+
+    <!-- Company Tab -->
+    <div id="company" class="tab-content">
+        {% if current_user.role == 'admin' %}
+            <h2><i class="fas fa-building"></i> Company Settings</h2>
+            <form method="POST" enctype="multipart/form-data">
+                {{ company_form.hidden_tag() }}
+                <input type="hidden" name="update_company_settings" value="1">
+    
+                <!-- Company Logo Section -->
+                <div class="form-group">
+                    <label for="logo"><i class="fas fa-image"></i> Company Logo</label>
+                    
+                    {% if current_company %}
+                        <div class="company-logo">
+                            {% if current_company.logo %}
+                                <img src="{{ url_for('static', filename='uploads/' + current_company.logo) }}" alt="Company Logo" id="logoPreview" width="100">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='uploads/default-logo.png') }}" alt="Default Logo" id="logoPreview" width="100">
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <p>No company settings available.</p>
+                    {% endif %}
+    
+                    <!-- Logo File Upload -->
+                    <input type="file" name="logo" class="form-control" id="logoInput" accept="image/jpeg, image/png">
+                </div>
+    
+                <!-- Company Information -->
+                <div class="form-group">
+                    {{ company_form.company_name.label }}
+                    {{ company_form.company_name(class="form-control") }}
+                </div>
+    
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        {{ company_form.company_contact.label }}
+                        {{ company_form.company_contact(class="form-control") }}
+                    </div>
+                    <div class="form-group col-md-6">
+                        {{ company_form.company_address.label }}
+                        {{ company_form.company_address(class="form-control", rows="3") }}
+                    </div>
+                </div>
+    
+                <hr>
+    
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        {{ company_form.work_start_time.label }}
+                        {{ company_form.work_start_time(class="form-control", type="time") }}
+                    </div>
+                    <div class="form-group col-md-6">
+                        {{ company_form.work_end_time.label }}
+                        {{ company_form.work_end_time(class="form-control", type="time") }}
+                    </div>
+                </div>
+    
+                <div class="form-group">
+                    {{ company_form.lunch_duration.label }}
+                    {{ company_form.lunch_duration(class="form-control") }}
+                </div>
+    
+                <div class="form-group">
+                    {{ company_form.work_days.label }}
+                    <div class="work-days-checkboxes">
+                        {% for choice in company_form.work_days %}
+                            <div class="form-check form-check-inline">
+                                {{ choice(class="form-check-input") }}
+                                {{ choice.label(class="form-check-label") }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+    
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Company Settings
+                </button>
+            </form>
+        {% else %}
+            <div class="access-denied">
+                <i class="fas fa-lock fa-3x text-danger"></i>
+                <h3>Access Denied</h3>
+                <p>You do not have permission to view or edit company settings.</p>
+            </div>
+        {% endif %}
+    </div>
+    
+     <!-- New System Settings Tab -->
+     <div id="system" class="tab-content">
+        {% if current_user.role == 'admin' %}
+            <h2><i class="fas fa-server"></i> System Settings</h2>
+            
+            <div class="system-sections">
+                <!-- Backup Section -->
+                <div class="system-section">
+                    <h3><i class="fas fa-database"></i> Database Backup</h3>
+                    <p>Create a complete backup of your system database.</p>
+                    
+                    <div class="backup-controls">
+                        <button id="createBackupBtn" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Create Backup Now
+                        </button>
+                        
+                        <div class="backup-status" id="backupStatus"></div>
+                    </div>
+                    
+                    <div class="existing-backups">
+                        <h4>Existing Backups</h4>
+                        <div class="backup-list" id="backupList">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Restore Section -->
+                <div class="system-section">
+                    <h3><i class="fas fa-history"></i> Database Restore</h3>
+                    <p>Restore the system from a previous backup.</p>
+                    
+                    <div class="restore-form">
+                        <form id="restoreForm" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label for="backupFile"><i class="fas fa-file-upload"></i> Select Backup File</label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="backupFile" name="backup_file" accept=".sql" required>
+                                    <label class="custom-file-label" for="backupFile">Choose file...</label>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-warning" id="restoreBtn">
+                                <i class="fas fa-redo"></i> Restore Database
+                            </button>
+                            
+                            <div class="alert alert-warning mt-3">
+                                <i class="fas fa-exclamation-triangle"></i> Warning: This will overwrite all current data!
+                            </div>
+                            
+                            <div class="restore-status" id="restoreStatus"></div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- System Info Section -->
+                <div class="system-section">
+                    <h3><i class="fas fa-info-circle"></i> System Information</h3>
+                    
+                    <div class="system-info">
+                        <div class="info-item">
+                            <span class="info-label">System Version:</span>
+                            <span class="info-value">1.0.0</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Database Type:</span>
+                            <span class="info-value">PostgreSQL</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Last Backup:</span>
+                            <span class="info-value" id="lastBackupDate">Never</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Storage Used:</span>
+                            <span class="info-value" id="storageUsed">Calculating...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="access-denied">
+                <i class="fas fa-lock fa-3x text-danger"></i>
+                <h3>Access Denied</h3>
+                <p>You do not have permission to view or edit system settings.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>    
+<!-- Tabs Script -->
+<script>
+function openTab(tabName) {
+    const tabContents = document.getElementsByClassName("tab-content");
+    const tabButtons = document.getElementsByClassName("tab-btn");
+
+    for (let i = 0; i < tabContents.length; i++) {
+        tabContents[i].classList.remove("active");
+    }
+    for (let i = 0; i < tabButtons.length; i++) {
+        tabButtons[i].classList.remove("active");
+    }
+
+    document.getElementById(tabName).classList.add("active");
+    event.currentTarget.classList.add("active");
+}
+</script>
+<script>
+    document.getElementById("logoInput").addEventListener("change", function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // Update the src of the image with the file preview
+                document.getElementById("logoPreview").src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
+<!-- JavaScript for System Settings Tab -->
+<script>
+    // Tab switching function (existing)
+    function openTab(tabName) {
+        const tabContents = document.getElementsByClassName("tab-content");
+        const tabButtons = document.getElementsByClassName("tab-btn");
+    
+        for (let i = 0; i < tabContents.length; i++) {
+            tabContents[i].classList.remove("active");
+        }
+        for (let i = 0; i < tabButtons.length; i++) {
+            tabButtons[i].classList.remove("active");
+        }
+    
+        document.getElementById(tabName).classList.add("active");
+        event.currentTarget.classList.add("active");
+    }
+    
+    // System Settings Tab Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load backups list
+        loadBackupsList();
+        
+        // Backup button click handler
+        document.getElementById('createBackupBtn').addEventListener('click', createBackup);
+        
+        // Restore form submission
+        document.getElementById('restoreForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (confirm('Are you sure you want to restore from this backup? All current data will be lost!')) {
+                restoreDatabase();
+            }
+        });
+        
+        // File input label update
+        document.getElementById('backupFile').addEventListener('change', function(e) {
+            const fileName = e.target.files[0] ? e.target.files[0].name : 'Choose file...';
+            document.querySelector('.custom-file-label').textContent = fileName;
+        });
+    });
+    
+    function loadBackupsList() {
+        fetch('/api/backups/list')
+            .then(response => response.json())
+            .then(data => {
+                const backupList = document.getElementById('backupList');
+                if (data.backups && data.backups.length > 0) {
+                    backupList.innerHTML = '';
+                    data.backups.forEach(backup => {
+                        const backupItem = document.createElement('div');
+                        backupItem.className = 'backup-item';
+                        backupItem.innerHTML = `
+                            <div class="backup-name">
+                                <i class="fas fa-file-archive"></i> ${backup.name}
+                            </div>
+                            <div class="backup-details">
+                                <span class="backup-size">${formatFileSize(backup.size)}</span>
+                                <span class="backup-date">${new Date(backup.modified * 1000).toLocaleString()}</span>
+                                <button class="btn btn-sm btn-info download-btn" data-file="${backup.name}">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger delete-btn" data-file="${backup.name}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        `;
+                        backupList.appendChild(backupItem);
+                    });
+                    
+                    // Set last backup date
+                    const lastBackup = data.backups[0];
+                    document.getElementById('lastBackupDate').textContent = 
+                        new Date(lastBackup.modified * 1000).toLocaleString();
+                    
+                    // Add event listeners to buttons
+                    document.querySelectorAll('.download-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            downloadBackup(this.getAttribute('data-file'));
+                        });
+                    });
+                    
+                    document.querySelectorAll('.delete-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            deleteBackup(this.getAttribute('data-file'));
+                        });
+                    });
+                } else {
+                    backupList.innerHTML = '<div class="no-backups">No backups available</div>';
+                    document.getElementById('lastBackupDate').textContent = 'Never';
+                }
+            })
+            .catch(error => {
+                console.error('Error loading backups:', error);
+                document.getElementById('backupList').innerHTML = 
+                    '<div class="error">Error loading backups</div>';
+            });
+    }
+    
+    function createBackup() {
+        const backupBtn = document.getElementById('createBackupBtn');
+        const statusDiv = document.getElementById('backupStatus');
+        
+        backupBtn.disabled = true;
+        statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating backup...';
+        
+        fetch('/api/backups/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                statusDiv.innerHTML = `<i class="fas fa-check-circle text-success"></i> Backup created successfully!`;
+                loadBackupsList();
+            } else {
+                statusDiv.innerHTML = `<i class="fas fa-times-circle text-danger"></i> ${data.message || 'Backup failed'}`;
+            }
+            backupBtn.disabled = false;
+        })
+        .catch(error => {
+            statusDiv.innerHTML = `<i class="fas fa-times-circle text-danger"></i> Backup failed: ${error.message}`;
+            backupBtn.disabled = false;
+        });
+    }
+    
+    function restoreDatabase() {
+        const form = document.getElementById('restoreForm');
+        const formData = new FormData(form);
+        const statusDiv = document.getElementById('restoreStatus');
+        const restoreBtn = document.getElementById('restoreBtn');
+        
+        restoreBtn.disabled = true;
+        statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Restoring database...';
+        
+        fetch('/api/backups/restore', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                statusDiv.innerHTML = `<i class="fas fa-check-circle text-success"></i> Database restored successfully!`;
+                // Reload the page after successful restore
+                setTimeout(() => location.reload(), 2000);
+            } else {
+                statusDiv.innerHTML = `<i class="fas fa-times-circle text-danger"></i> ${data.message || 'Restore failed'}`;
+            }
+            restoreBtn.disabled = false;
+        })
+        .catch(error => {
+            statusDiv.innerHTML = `<i class="fas fa-times-circle text-danger"></i> Restore failed: ${error.message}`;
+            restoreBtn.disabled = false;
+        });
+    }
+    
+    function downloadBackup(filename) {
+        window.location.href = `/api/backups/download/${filename}`;
+    }
+    
+    function deleteBackup(filename) {
+        if (confirm(`Are you sure you want to delete backup ${filename}?`)) {
+            fetch(`/api/backups/delete/${filename}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    loadBackupsList();
+                } else {
+                    alert(`Error deleting backup: ${data.message}`);
+                }
+            })
+            .catch(error => {
+                alert(`Error deleting backup: ${error.message}`);
+            });
+        }
+    }
+    
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    </script>
+{% endblock %}
